@@ -237,5 +237,36 @@
 
     initPage();
   </script>
+  <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+function submitForm() {
+  const data = {
+    action: "register",
+    line_user_id: document.getElementById("line_user_id").value,
+    display_name: document.getElementById("display_name").value,
+    full_name: document.getElementById("full_name").value,
+    role: document.getElementById("role").value,
+    department_id: document.getElementById("department_id").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value
+  };
+
+  const params = new URLSearchParams(data).toString();
+  const url = API_URL + "?" + params + "&callback=callback";
+
+  const script = document.createElement("script");
+  script.src = url;
+  document.body.appendChild(script);
+}
+
+function callback(res) {
+  if (res.ok) {
+    alert("บันทึกสำเร็จ 🎉");
+  } else {
+    alert("เกิดข้อผิดพลาด");
+  }
+}
+</script>
 </body>
 </html>
