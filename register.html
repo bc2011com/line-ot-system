@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>สมัครสมาชิก / เข้าสู่ระบบ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{
+      font-family:'Sarabun',sans-serif;
+      background:#f5f5f5;
+      margin:0;
+      padding:20px;
+    }
+    .card{
+      max-width:640px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 4px 14px rgba(0,0,0,.08);
+    }
+    h1{
+      text-align:center;
+      color:#0a8f2f;
+      margin-bottom:8px;
+    }
+    .sub{
+      text-align:center;
+      margin-bottom:20px;
+      color:#444;
+    }
+    label{
+      display:block;
+      font-weight:600;
+      margin:12px 0 6px;
+    }
+    input, select{
+      width:100%;
+      padding:12px;
+      border:1px solid #ccc;
+      border-radius:10px;
+      box-sizing:border-box;
+      font-size:16px;
+    }
+    .readonly{
+      background:#f0f3f5;
+    }
+    .btn{
+      width:100%;
+      margin-top:18px;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      background:#0a8f2f;
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .msg{
+      margin-top:14px;
+      padding:12px;
+      border-radius:10px;
+      background:#eef7ee;
+      color:#1f5d1f;
+    }
+    .debug{
+      margin-top:18px;
+      padding:12px;
+      border-radius:10px;
+      background:#eef;
+      font-size:12px;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>สมัครสมาชิก / เข้าสู่ระบบ</h1>
+    <div class="sub">ระบบเบิกค่าตอบแทน รพ.ศีขรภูมิ</div>
+
+    <label>LINE User ID</label>
+    <input id="line_user_id" class="readonly" readonly>
+
+    <label>ชื่อจาก LINE</label>
+    <input id="display_name" class="readonly" readonly>
+
+    <label>ชื่อ-สกุล</label>
+    <input id="full_name" placeholder="กรอกชื่อ-สกุล">
+
+    <label>ตำแหน่งสิทธิ์ใช้งาน</label>
+    <select id="role">
+      <option value="staff">staff</option>
+      <option value="department_rep">department_rep</option>
+      <option value="finance">finance</option>
+      <option value="admin">admin</option>
+    </select>
+
+    <label>หน่วยงาน / แผนก</label>
+    <select id="department_id">
+      <option value="">-- เลือกแผนก --</option>
+    </select>
+
+    <label>เบอร์โทร</label>
+    <input id="phone" placeholder="เช่น 0812345678">
+
+    <label>อีเมล</label>
+    <input id="email" placeholder="example@hospital.go.th">
+
+    <button class="btn" onclick="saveUser()">บันทึกข้อมูล</button>
+
+    <div id="msg"></div>
+    <div id="debug" class="debug"></div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+    function log(msg){
+      document.getElementById('debug').innerText += msg + "\n";
+      console.log(msg);
+    }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+        const script = document.createElement('script');
+        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error('JSONP timeout'));
+        },10000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          if(script.parentNode) script.parentNode.removeChild(script);
+          delete window[cb];
+        }
+
+        window[cb] = function(data){
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function(){
+          cleanup();
+          reject(new Error('JSONP failed'));
+        };
+
+        script.src = src;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function initPage(){
+      try{
+        log('เริ่ม liff.init()');
+        await liff.init({ liffId: LIFF_ID });
+        log('liff.init สำเร็จ');
+
+        if(!liff.isLoggedIn()){
+          if(liff.isInClient()){
+            liff.login({ redirectUri: location.href });
+            return;
+          }else{
+            document.getElementById('msg').innerHTML = '<div class="msg">กรุณาเปิดผ่าน LINE</div>';
+            return;
+          }
+        }
+
+        const profile = await liff.getProfile();
+        document.getElementById('line_user_id').value = profile.userId || '';
+        document.getElementById('display_name').value = profile.displayName || '';
+
+        await loadDepartments();
+        await loadExistingUser(profile.userId);
+
+      }catch(err){
+        log('ERROR: ' + (err.message || err));
+      }
+    }
+
+    async function loadDepartments(){
+      const res = await jsonp(API_BASE + '?action=getDepartments');
+      const select = document.getElementById('department_id');
+      (res.data || []).forEach(dep=>{
+        const opt = document.createElement('option');
+        opt.value = dep.department_id;
+        opt.textContent = dep.department_name;
+        select.appendChild(opt);
+      });
+      log('โหลดรายชื่อแผนกสำเร็จ');
+    }
+
+    async function loadExistingUser(lineUserId){
+      const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
+      if(res.data){
+        document.getElementById('full_name').value = res.data.full_name || '';
+        document.getElementById('role').value = res.data.role || 'staff';
+        document.getElementById('department_id').value = res.data.department_id || '';
+        document.getElementById('phone').value = res.data.phone || '';
+        document.getElementById('email').value = res.data.email || '';
+        document.getElementById('msg').innerHTML = '<div class="msg">พบข้อมูลเดิมของคุณ ระบบโหลดให้อัตโนมัติแล้ว</div>';
+        log('โหลดข้อมูลผู้ใช้เดิมสำเร็จ');
+      }
+    }
+
+    async function saveUser(){
+      const payload = {
+        action: 'saveUser',
+        data: {
+          line_user_id: document.getElementById('line_user_id').value,
+          display_name: document.getElementById('display_name').value,
+          full_name: document.getElementById('full_name').value,
+          role: document.getElementById('role').value,
+          department_id: document.getElementById('department_id').value,
+          phone: document.getElementById('phone').value,
+          email: document.getElementById('email').value,
+          status_active: 'TRUE'
+        }
+      };
+
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      document.getElementById('msg').innerHTML = '<div class="msg">' + result.message + '</div>';
+      log('saveUser result: ' + JSON.stringify(result));
+    }
+
+    initPage();
+  </script>
+</body>
+</html>

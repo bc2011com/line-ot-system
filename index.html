@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+
+<html lang="th">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>ระบบเบิกค่าตอบแทน รพ.ศีขรภูมิ</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+
+    body {
+
+      font-family: 'Sarabun', sans-serif;
+
+      background: #f5f5f5;
+
+      text-align: center;
+
+      margin: 0;
+
+      padding: 20px;
+
+    }
+
+    .card {
+
+      background: white;
+
+      padding: 20px;
+
+      border-radius: 16px;
+
+      max-width: 560px;
+
+      margin: auto;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+    }
+
+    .title {
+
+      color: green;
+
+      font-size: 22px;
+
+      font-weight: bold;
+
+      margin-bottom: 10px;
+
+    }
+
+    .status {
+
+      margin: 10px 0;
+
+    }
+
+    .badge {
+
+      display: inline-block;
+
+      padding: 6px 12px;
+
+      border-radius: 20px;
+
+      background: #e0f2e0;
+
+      margin: 5px;
+
+      font-size: 13px;
+
+    }
+
+    .btn {
+
+      background: green;
+
+      color: white;
+
+      padding: 10px 15px;
+
+      border: none;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      margin-top: 10px;
+
+      margin-right: 6px;
+
+      font-size: 16px;
+
+    }
+
+    .debug {
+
+      text-align: left;
+
+      font-size: 12px;
+
+      background: #eef;
+
+      padding: 12px;
+
+      border-radius: 10px;
+
+      margin-top: 15px;
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+
+    }
+
+    table {
+
+      width: 100%;
+
+      border-collapse: collapse;
+
+      margin-top: 12px;
+
+      font-size: 13px;
+
+      text-align: left;
+
+    }
+
+    th, td {
+
+      border: 1px solid #ddd;
+
+      padding: 6px;
+
+      vertical-align: top;
+
+    }
+
+    th {
+
+      background: #f0f0f0;
+
+    }
+
+    .data-box {
+
+      margin-top: 15px;
+
+      text-align: left;
+
+      background: #fafafa;
+
+      border-radius: 10px;
+
+      padding: 12px;
+
+      border: 1px solid #e5e5e5;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="title">ระบบเบิกค่าตอบแทน<br>รพ.ศีขรภูมิ</div>
+
+
+
+    <div id="display">กำลังโหลด...</div>
+
+    <div id="statusMessage"></div>
+
+
+
+    <div class="status">
+
+      <span class="badge" id="liffStatus">LIFF: -</span>
+
+      <span class="badge" id="scriptStatus">Apps Script: -</span>
+
+      <span class="badge" id="sheetStatus">Google Sheet: -</span>
+
+    </div>
+
+
+
+    <button class="btn" onclick="location.reload()">โหลดใหม่</button>
+
+    <button id="loginBtn" class="btn" onclick="manualLogin()" style="display:none;">เข้าสู่ระบบ LINE</button>
+
+
+
+    <div class="data-box" id="dataBox" style="display:none;"></div>
+
+    <div class="debug" id="debug"></div>
+
+  </div>
+
+
+
+  <script>
+
+    const LIFF_ID = "2009688300-9LChW0zg";
+
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+
+
+    function logDebug(msg) {
+
+      const el = document.getElementById("debug");
+
+      el.innerText += msg + "\n";
+
+      console.log(msg);
+
+    }
+
+
+
+    function setText(id, text) {
+
+      const el = document.getElementById(id);
+
+      if (el) el.innerText = text;
+
+    }
+
+
+
+    function safeStringify(err) {
+
+      try {
+
+        if (!err) return "unknown error";
+
+        if (typeof err === "string") return err;
+
+        if (err.message) return err.message;
+
+        return JSON.stringify(err);
+
+      } catch (_) {
+
+        return String(err);
+
+      }
+
+    }
+
+
+
+    function jsonp(url) {
+
+      return new Promise((resolve, reject) => {
+
+        const callbackName = "jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+
+        const script = document.createElement("script");
+
+        const fullUrl = url + (url.includes("?") ? "&" : "?") + "callback=" + callbackName;
+
+
+
+        const timeout = setTimeout(() => {
+
+          cleanup();
+
+          reject(new Error("JSONP timeout"));
+
+        }, 10000);
+
+
+
+        function cleanup() {
+
+          clearTimeout(timeout);
+
+          if (script.parentNode) script.parentNode.removeChild(script);
+
+          delete window[callbackName];
+
+        }
+
+
+
+        window[callbackName] = function(data) {
+
+          cleanup();
+
+          resolve(data);
+
+        };
+
+
+
+        script.onerror = function() {
+
+          cleanup();
+
+          reject(new Error("JSONP request failed"));
+
+        };
+
+
+
+        script.src = fullUrl;
+
+        document.body.appendChild(script);
+
+      });
+
+    }
+
+
+
+    function manualLogin() {
+
+      logDebug("manualLogin()");
+
+      liff.login({ redirectUri: location.href });
+
+    }
+
+
+
+    function renderTable(headers, rows) {
+
+      if (!headers || headers.length === 0) return "<div>ไม่มีหัวตาราง</div>";
+
+      if (!rows || rows.length === 0) return "<div>ยังไม่มีข้อมูล</div>";
+
+
+
+      let html = "<table><thead><tr>";
+
+      headers.forEach(h => html += "<th>" + escapeHtml(String(h)) + "</th>");
+
+      html += "</tr></thead><tbody>";
+
+
+
+      rows.forEach(row => {
+
+        html += "<tr>";
+
+        headers.forEach((_, i) => {
+
+          const val = row[i] !== undefined && row[i] !== null ? row[i] : "";
+
+          html += "<td>" + escapeHtml(String(val)) + "</td>";
+
+        });
+
+        html += "</tr>";
+
+      });
+
+
+
+      html += "</tbody></table>";
+
+      return html;
+
+    }
+
+
+
+    function escapeHtml(text) {
+
+      return text
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;");
+
+    }
+
+
+
+    async function loadBackend() {
+
+      try {
+
+        setText("scriptStatus", "Apps Script: กำลังตรวจสอบ");
+
+        const ping = await jsonp(API_BASE + "?action=ping");
+
+        logDebug("ping success: " + safeStringify(ping));
+
+        setText("scriptStatus", "Apps Script: ทำงานแล้ว");
+
+
+
+        const data = await jsonp(API_BASE + "?action=getData");
+
+        logDebug("getData success");
+
+        setText("sheetStatus", data.ok ? "Google Sheet: พร้อมใช้งาน" : "Google Sheet: มีปัญหา");
+
+
+
+        const dataBox = document.getElementById("dataBox");
+
+        dataBox.style.display = "block";
+
+        dataBox.innerHTML = `
+
+          <div><b>เวลาเซิร์ฟเวอร์:</b> ${escapeHtml(String(data.serverTime || "-"))}</div>
+
+          <div><b>ชีต:</b> ${escapeHtml(String(data.sheetName || "-"))}</div>
+
+          <div><b>จำนวนแถว:</b> ${escapeHtml(String(data.totalRows || 0))}</div>
+
+          <div><b>สถานะ:</b> ${escapeHtml(String(data.message || "-"))}</div>
+
+          <div style="margin-top:10px;"><b>ข้อมูลล่าสุด</b></div>
+
+          ${renderTable(data.headers, data.latestRows)}
+
+        `;
+
+      } catch (err) {
+
+        logDebug("Backend error: " + safeStringify(err));
+
+        setText("scriptStatus", "Apps Script: มีปัญหา");
+
+        setText("sheetStatus", "Google Sheet: มีปัญหา");
+
+      }
+
+    }
+
+
+
+    async function initApp() {
+
+      const display = document.getElementById("display");
+
+      const statusMessage = document.getElementById("statusMessage");
+
+
+
+      logDebug("เริ่ม liff.init()");
+
+      logDebug("LIFF ID = " + LIFF_ID);
+
+      logDebug("Current URL = " + location.href);
+
+
+
+      try {
+
+        await liff.init({
+
+          liffId: LIFF_ID,
+
+          withLoginOnExternalBrowser: false
+
+        });
+
+
+
+        logDebug("liff.init() สำเร็จ");
+
+        setText("liffStatus", "LIFF: เชื่อมต่อแล้ว");
+
+
+
+        const inClient = liff.isInClient();
+
+        const loggedIn = liff.isLoggedIn();
+
+
+
+        logDebug("isInClient = " + inClient);
+
+        logDebug("isLoggedIn = " + loggedIn);
+
+
+
+        if (!loggedIn) {
+
+          if (inClient) {
+
+            display.innerText = "กำลังพาไปล็อกอิน LINE...";
+
+            statusMessage.innerText = "กรุณารอสักครู่";
+
+            liff.login({ redirectUri: location.href });
+
+            return;
+
+          } else {
+
+            display.innerText = "กรุณาเปิดผ่านแอป LINE";
+
+            statusMessage.innerText = "หรือกดปุ่มด้านล่างเพื่อเข้าสู่ระบบ";
+
+            document.getElementById("loginBtn").style.display = "inline-block";
+
+            return;
+
+          }
+
+        }
+
+
+
+        const profile = await liff.getProfile();
+
+        display.innerText = "สวัสดี " + (profile.displayName || "ผู้ใช้งาน");
+
+        statusMessage.innerText = "เข้าสู่ระบบสำเร็จ";
+
+
+
+        await loadBackend();
+
+
+
+      } catch (err) {
+
+        logDebug("LIFF error: " + safeStringify(err));
+
+        display.innerText = "เริ่มต้นระบบไม่สำเร็จ";
+
+        statusMessage.innerText = safeStringify(err);
+
+        setText("liffStatus", "LIFF: มีปัญหา");
+
+        document.getElementById("loginBtn").style.display = "inline-block";
+
+      }
+
+    }
+
+
+
+    initApp();
+
+  </script>
+
+</body>
+
+</html>
