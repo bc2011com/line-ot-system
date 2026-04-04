@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบ / สมัครสมาชิก</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Sarabun', system-ui, sans-serif;
+      background: linear-gradient(135deg,#0a8f2f,#16a34a);
+      color: #fff;
+    }
+
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 24px;
+      padding: 30px 24px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      color: #111827;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      color: #0a8f2f;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .sub {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 14px;
+      border-radius: 16px;
+      border: none;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: #0a8f2f;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #087a29;
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .note {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>ระบบเบิกค่าตอบแทน</h1>
+      <div class="sub">รพ.ศีขรภูมิ</div>
+
+      <!-- ปุ่มผู้ใช้เดิม -->
+      <button class="btn btn-primary" onclick="goLogin()">
+        เข้าสู่ระบบ
+      </button>
+
+      <!-- ปุ่มผู้ใช้ใหม่ -->
+      <button class="btn btn-secondary" onclick="goRegister()">
+        สมัครสมาชิกใหม่
+      </button>
+
+      <div class="note">
+        ใช้บัญชี LINE ของคุณในการเข้าสู่ระบบ
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goLogin() {
+      window.location.href = "entry.html";
+    }
+
+    function goRegister() {
+      window.location.href = "register_fixed.html";
+    }
+  </script>
+
+</body>
+</html>
