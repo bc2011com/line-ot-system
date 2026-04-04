@@ -282,9 +282,12 @@
 
         log('submitForm response: ' + JSON.stringify(res));
 
-      if (res && (res.ok || res.success)) {
-         setMessage(res.message || 'บันทึกสำเร็จ');
-
+     if (res && (res.ok || res.success)) {
+        setMessage(res.message || 'บันทึกสำเร็จ');
+        setTimeout(() => {
+        location.href = 'dashboard.html';
+        }, 600);
+      }
       if (window.liff && liff.isInClient()) {
          setTimeout(() => {
           liff.closeWindow();
