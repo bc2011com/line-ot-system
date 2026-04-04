@@ -35,7 +35,7 @@
       font-weight:600;
       margin:12px 0 6px;
     }
-    input, select{
+    input, select, button{
       width:100%;
       padding:12px;
       border:1px solid #ccc;
@@ -46,17 +46,18 @@
     .readonly{
       background:#f0f3f5;
     }
-    .btn{
-      width:100%;
+    button{
       margin-top:18px;
-      padding:14px;
       border:none;
-      border-radius:12px;
       background:#0a8f2f;
       color:#fff;
       font-size:18px;
       font-weight:700;
       cursor:pointer;
+    }
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
     }
     .msg{
       margin-top:14px;
@@ -64,6 +65,10 @@
       border-radius:10px;
       background:#eef7ee;
       color:#1f5d1f;
+    }
+    .msg.error{
+      background:#fdeeee;
+      color:#9a1d1d;
     }
     .debug{
       margin-top:18px;
@@ -109,8 +114,8 @@
     <label>อีเมล</label>
     <input id="email" placeholder="example@hospital.go.th">
 
-    <button onclick="submitForm()">บันทึกข้อมูล</button>
-    
+    <button id="saveBtn" type="button" onclick="submitForm()">บันทึกข้อมูล</button>
+
     <div id="msg"></div>
     <div id="debug" class="debug"></div>
   </div>
@@ -120,8 +125,20 @@
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
     function log(msg){
-      document.getElementById('debug').innerText += msg + "\n";
+      const box = document.getElementById('debug');
+      box.innerText += msg + "\n";
       console.log(msg);
+    }
+
+    function setMessage(text, isError = false){
+      const el = document.getElementById('msg');
+      el.innerHTML = `<div class="msg${isError ? ' error' : ''}">${text}</div>`;
+    }
+
+    function setLoading(loading){
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = loading;
+      btn.textContent = loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล';
     }
 
     function jsonp(url){
@@ -133,12 +150,12 @@
         const timer = setTimeout(()=>{
           cleanup();
           reject(new Error('JSONP timeout'));
-        },10000);
+        },15000);
 
         function cleanup(){
           clearTimeout(timer);
           if(script.parentNode) script.parentNode.removeChild(script);
-          delete window[cb];
+          try { delete window[cb]; } catch(e) { window[cb] = undefined; }
         }
 
         window[cb] = function(data){
@@ -163,110 +180,124 @@
         log('liff.init สำเร็จ');
 
         if(!liff.isLoggedIn()){
+          log('ยังไม่ได้ login');
           if(liff.isInClient()){
             liff.login({ redirectUri: location.href });
             return;
-          }else{
-            document.getElementById('msg').innerHTML = '<div class="msg">กรุณาเปิดผ่าน LINE</div>';
-            return;
           }
+          setMessage('กรุณาเปิดลิงก์นี้ผ่าน LINE', true);
+          return;
         }
 
         const profile = await liff.getProfile();
         document.getElementById('line_user_id').value = profile.userId || '';
         document.getElementById('display_name').value = profile.displayName || '';
+        log('โหลดโปรไฟล์ LINE สำเร็จ');
 
         await loadDepartments();
         await loadExistingUser(profile.userId);
-
       }catch(err){
-        log('ERROR: ' + (err.message || err));
+        log('ERROR initPage: ' + (err.message || err));
+        setMessage('เชื่อมต่อ LINE ไม่สำเร็จ: ' + (err.message || err), true);
       }
     }
 
     async function loadDepartments(){
-      const res = await jsonp(API_BASE + '?action=getDepartments');
-      const select = document.getElementById('department_id');
-      (res.data || []).forEach(dep=>{
-        const opt = document.createElement('option');
-        opt.value = dep.department_id;
-        opt.textContent = dep.department_name;
-        select.appendChild(opt);
-      });
-      log('โหลดรายชื่อแผนกสำเร็จ');
-    }
+      try {
+        const res = await jsonp(API_BASE + '?action=getDepartments');
+        if (!res || res.ok === false) {
+          throw new Error((res && res.message) || 'โหลดรายชื่อแผนกไม่สำเร็จ');
+        }
 
-    async function loadExistingUser(lineUserId){
-      const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
-      if(res.data){
-        document.getElementById('full_name').value = res.data.full_name || '';
-        document.getElementById('role').value = res.data.role || 'staff';
-        document.getElementById('department_id').value = res.data.department_id || '';
-        document.getElementById('phone').value = res.data.phone || '';
-        document.getElementById('email').value = res.data.email || '';
-        document.getElementById('msg').innerHTML = '<div class="msg">พบข้อมูลเดิมของคุณ ระบบโหลดให้อัตโนมัติแล้ว</div>';
-        log('โหลดข้อมูลผู้ใช้เดิมสำเร็จ');
+        const select = document.getElementById('department_id');
+        const items = Array.isArray(res.data) ? res.data : [];
+        items.forEach(dep => {
+          const opt = document.createElement('option');
+          opt.value = dep.department_id || '';
+          opt.textContent = dep.department_name || dep.department_id || 'ไม่ทราบชื่อแผนก';
+          select.appendChild(opt);
+        });
+        log('โหลดรายชื่อแผนกสำเร็จ: ' + items.length + ' รายการ');
+      } catch (err) {
+        log('ERROR loadDepartments: ' + (err.message || err));
+        setMessage('ยังโหลดรายชื่อแผนกไม่ได้', true);
       }
     }
 
-    async function saveUser(){
-      const payload = {
-        action: 'saveUser',
-        data: {
-          line_user_id: document.getElementById('line_user_id').value,
-          display_name: document.getElementById('display_name').value,
-          full_name: document.getElementById('full_name').value,
-          role: document.getElementById('role').value,
-          department_id: document.getElementById('department_id').value,
-          phone: document.getElementById('phone').value,
-          email: document.getElementById('email').value,
-          status_active: 'TRUE'
+    async function loadExistingUser(lineUserId){
+      try {
+        const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
+        if (res && res.data) {
+          document.getElementById('full_name').value = res.data.full_name || '';
+          document.getElementById('role').value = res.data.role || 'staff';
+          document.getElementById('department_id').value = res.data.department_id || '';
+          document.getElementById('phone').value = res.data.phone || '';
+          document.getElementById('email').value = res.data.email || '';
+          setMessage('พบข้อมูลเดิมของคุณ ระบบโหลดให้อัตโนมัติแล้ว');
+          log('โหลดข้อมูลผู้ใช้เดิมสำเร็จ');
+        } else {
+          log('ไม่พบข้อมูลผู้ใช้เดิม');
         }
+      } catch (err) {
+        log('ERROR loadExistingUser: ' + (err.message || err));
+      }
+    }
+
+    function validateForm(){
+      const fullName = document.getElementById('full_name').value.trim();
+      const departmentId = document.getElementById('department_id').value.trim();
+      const lineUserId = document.getElementById('line_user_id').value.trim();
+
+      if (!lineUserId) return 'ไม่พบ LINE User ID';
+      if (!fullName) return 'กรุณากรอกชื่อ-สกุล';
+      if (!departmentId) return 'กรุณาเลือกแผนก';
+      return '';
+    }
+
+    async function submitForm(){
+      const error = validateForm();
+      if (error) {
+        setMessage(error, true);
+        return;
+      }
+
+      const data = {
+        action: 'register',
+        line_user_id: document.getElementById('line_user_id').value.trim(),
+        display_name: document.getElementById('display_name').value.trim(),
+        full_name: document.getElementById('full_name').value.trim(),
+        role: document.getElementById('role').value,
+        department_id: document.getElementById('department_id').value,
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim()
       };
 
-      const res = await fetch(API_BASE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        setLoading(true);
+        setMessage('กำลังบันทึกข้อมูล...');
+        log('submitForm payload: ' + JSON.stringify(data));
 
-      const result = await res.json();
-      document.getElementById('msg').innerHTML = '<div class="msg">' + result.message + '</div>';
-      log('saveUser result: ' + JSON.stringify(result));
+        const query = new URLSearchParams(data).toString();
+        const res = await jsonp(API_BASE + '?' + query);
+
+        log('submitForm response: ' + JSON.stringify(res));
+
+        if (res && (res.ok || res.success)) {
+          setMessage(res.message || 'บันทึกสำเร็จ');
+          alert('บันทึกสำเร็จ 🎉');
+        } else {
+          throw new Error((res && res.message) || 'บันทึกข้อมูลไม่สำเร็จ');
+        }
+      } catch (err) {
+        log('ERROR submitForm: ' + (err.message || err));
+        setMessage('บันทึกไม่สำเร็จ: ' + (err.message || err), true);
+        alert('บันทึกไม่สำเร็จ\n' + (err.message || err));
+      } finally {
+        setLoading(false);
+      }
     }
 
     initPage();
   </script>
-  <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
-
-function submitForm() {
-  const data = {
-    action: "register",
-    line_user_id: document.getElementById("line_user_id").value,
-    display_name: document.getElementById("display_name").value,
-    full_name: document.getElementById("full_name").value,
-    role: document.getElementById("role").value,
-    department_id: document.getElementById("department_id").value,
-    phone: document.getElementById("phone").value,
-    email: document.getElementById("email").value
-  };
-
-  const params = new URLSearchParams(data).toString();
-  const url = API_URL + "?" + params + "&callback=callback";
-
-  const script = document.createElement("script");
-  script.src = url;
-  document.body.appendChild(script);
-}
-
-function callback(res) {
-  if (res.ok) {
-    alert("บันทึกสำเร็จ 🎉");
-  } else {
-    alert("เกิดข้อผิดพลาด");
-  }
-}
-</script>
 </body>
 </html>
