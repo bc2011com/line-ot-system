@@ -282,12 +282,15 @@
 
         log('submitForm response: ' + JSON.stringify(res));
 
-        if (res && (res.ok || res.success)) {
-          setMessage(res.message || 'บันทึกสำเร็จ');
-          alert('บันทึกสำเร็จ 🎉');
-        } else {
-          throw new Error((res && res.message) || 'บันทึกข้อมูลไม่สำเร็จ');
-        }
+       if (res && (res.ok || res.success)) {
+  setMessage(res.message || 'บันทึกสำเร็จ');
+  alert('บันทึกสำเร็จ 🎉');
+  
+  // 👇 เพิ่มตรงนี้
+  if (window.liff && liff.isInClient()) {
+    liff.closeWindow();
+  }
+}
       } catch (err) {
         log('ERROR submitForm: ' + (err.message || err));
         setMessage('บันทึกไม่สำเร็จ: ' + (err.message || err), true);
