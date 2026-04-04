@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สมัครสมาชิก / เข้าสู่ระบบ</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{margin:0;padding:20px;font-family:'Sarabun',system-ui,sans-serif;background:#f5f5f5;color:#111827;}
+    .card{max-width:680px;margin:0 auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 18px rgba(0,0,0,.08);}
+    h1{margin:0 0 8px;text-align:center;color:#0a8f2f;font-size:clamp(30px, 6vw, 54px);line-height:1.2;}
+    .sub{text-align:center;color:#4b5563;margin-bottom:18px;font-size:clamp(16px, 3vw, 24px);}
+    label{display:block;font-size:18px;font-weight:700;margin:12px 0 6px;}
+    input,select{width:100%;box-sizing:border-box;padding:14px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;background:#fff;}
+    .readonly{background:#eef2f7;}
+    .btn{width:100%;margin-top:18px;padding:16px;border:none;border-radius:14px;background:#0a8f2f;color:#fff;font-size:20px;font-weight:800;cursor:pointer;}
+    .btn[disabled]{opacity:.7;cursor:not-allowed;}
+    .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:18px;line-height:1.5;white-space:pre-wrap;display:none;}
+    .msg.error{background:#fef2f2;color:#991b1b;}
+    .debug{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>สมัครสมาชิก / เข้าสู่ระบบ</h1>
+    <div class="sub">ระบบเบิกค่าตอบแทน รพ.ศีขรภูมิ</div>
+
+    <label>LINE User ID</label>
+    <input id="line_user_id" class="readonly" readonly>
+
+    <label>ชื่อจาก LINE</label>
+    <input id="display_name" class="readonly" readonly>
+
+    <label>ชื่อ-สกุล</label>
+    <input id="full_name" placeholder="กรอกชื่อ-สกุล">
+
+    <label>ตำแหน่งสิทธิ์ใช้งาน</label>
+    <select id="role">
+      <option value="staff">staff</option>
+      <option value="department_rep">department_rep</option>
+      <option value="finance">finance</option>
+      <option value="admin">admin</option>
+    </select>
+
+    <label>หน่วยงาน / แผนก</label>
+    <select id="department_id">
+      <option value="">-- เลือกแผนก --</option>
+    </select>
+
+    <label>เบอร์โทร</label>
+    <input id="phone" placeholder="เช่น 0812345678">
+
+    <label>อีเมล</label>
+    <input id="email" placeholder="example@hospital.go.th">
+
+    <button id="saveBtn" class="btn" onclick="submitForm()">บันทึกข้อมูล</button>
+
+    <div id="msg" class="msg"></div>
+    <div id="debug" class="debug"></div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+    function log(msg){
+      const el = document.getElementById('debug');
+      el.innerText += msg + "\n";
+      console.log(msg);
+    }
+
+    function setMessage(msg, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = msg ? 'block' : 'none';
+      el.className = isError ? 'msg error' : 'msg';
+      el.innerText = msg || '';
+    }
+
+    function setLoading(isLoading){
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = isLoading;
+      btn.innerText = isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล';
+    }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+        const script = document.createElement('script');
+        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error('JSONP timeout'));
+        },10000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          if(script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[cb]; } catch(e) {}
+        }
+
+        window[cb] = function(data){
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function(){
+          cleanup();
+          reject(new Error('JSONP failed'));
+        };
+
+        script.src = src;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadDepartments(){
+      log('โหลดรายชื่อแผนก...');
+      const res = await jsonp(API_BASE + '?action=getDepartments');
+      const select = document.getElementById('department_id');
+      select.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+      const list = (res && res.data) ? res.data : [];
+      list.forEach(dep=>{
+        const opt = document.createElement('option');
+        opt.value = dep.department_id;
+        opt.textContent = dep.department_name || dep.department_id;
+        select.appendChild(opt);
+      });
+      log('โหลดรายชื่อแผนกสำเร็จ: ' + list.length + ' รายการ');
+    }
+
+    async function loadExistingUser(lineUserId){
+      log('ตรวจสอบผู้ใช้เดิม...');
+      const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
+      log('getUserByLineId response: ' + JSON.stringify(res));
+
+      if(res && res.data){
+        document.getElementById('full_name').value = res.data.full_name || '';
+        document.getElementById('role').value = res.data.role || 'staff';
+        document.getElementById('department_id').value = res.data.department_id || '';
+        document.getElementById('phone').value = res.data.phone || '';
+        document.getElementById('email').value = res.data.email || '';
+        setMessage('พบข้อมูลเดิมของคุณ ระบบโหลดให้อัตโนมัติแล้ว');
+      }else{
+        log('ไม่พบข้อมูลผู้ใช้เดิม');
+      }
+    }
+
+    async function initPage(){
+      try{
+        log('เริ่ม liff.init()');
+        setMessage('กำลังเชื่อมต่อ LINE...');
+        await liff.init({ liffId: LIFF_ID });
+        log('liff.init สำเร็จ');
+
+        if(!liff.isLoggedIn()){
+          log('ยังไม่ได้ล็อกอิน LINE');
+          liff.login({ redirectUri: location.href });
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        document.getElementById('line_user_id').value = profile.userId || '';
+        document.getElementById('display_name').value = profile.displayName || '';
+        log('โหลดโปรไฟล์ LINE สำเร็จ');
+        log('LINE User ID: ' + (profile.userId || ''));
+        log('Display Name: ' + (profile.displayName || ''));
+
+        await loadDepartments();
+        await loadExistingUser(profile.userId);
+
+        setMessage('');
+      }catch(err){
+        log('ERROR initPage: ' + (err.message || err));
+        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\n' + (err.message || err), true);
+      }
+    }
+
+    async function submitForm(){
+      const lineUserId = document.getElementById('line_user_id').value.trim();
+      const displayName = document.getElementById('display_name').value.trim();
+      const fullName = document.getElementById('full_name').value.trim();
+      const role = document.getElementById('role').value;
+      const departmentId = document.getElementById('department_id').value;
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if(!lineUserId){
+        setMessage('ยังไม่พบ LINE User ID กรุณาเปิดผ่าน LINE OA แล้วลองใหม่', true);
+        return;
+      }
+      if(!fullName){
+        setMessage('กรุณากรอกชื่อ-สกุล', true);
+        return;
+      }
+      if(!departmentId){
+        setMessage('กรุณาเลือกหน่วยงาน / แผนก', true);
+        return;
+      }
+      if(!phone){
+        setMessage('กรุณากรอกเบอร์โทร', true);
+        return;
+      }
+      if(!email){
+        setMessage('กรุณากรอกอีเมล', true);
+        return;
+      }
+
+      const data = {
+        action: 'register',
+        line_user_id: lineUserId,
+        display_name: displayName,
+        full_name: fullName,
+        role: role,
+        department_id: departmentId,
+        phone: phone,
+        email: email
+      };
+
+      try{
+        setLoading(true);
+        setMessage('กำลังบันทึกข้อมูล...');
+        log('submitForm payload: ' + JSON.stringify(data));
+
+        const query = new URLSearchParams(data).toString();
+        const res = await jsonp(API_BASE + '?' + query);
+
+        log('submitForm response: ' + JSON.stringify(res));
+
+        if(res && (res.ok || res.success)){
+          setMessage(res.message || 'บันทึกสำเร็จ');
+          setTimeout(() => {
+            location.href = 'dashboard.html';
+          }, 700);
+        }else{
+          throw new Error((res && res.message) || 'บันทึกข้อมูลไม่สำเร็จ');
+        }
+      }catch(err){
+        log('ERROR submitForm: ' + (err.message || err));
+        setMessage('ไม่สามารถบันทึกข้อมูลได้\n' + (err.message || err), true);
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
