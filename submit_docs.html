@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ส่งเอกสารค่าตอบแทน</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{
+      margin:0;
+      font-family:'Sarabun',system-ui,sans-serif;
+      background:#f4f7fb;
+      color:#111827;
+    }
+    .topbar{
+      background:linear-gradient(135deg,#0a8f2f,#16a34a);
+      color:#fff;
+      padding:24px 18px 28px;
+      border-bottom-left-radius:26px;
+      border-bottom-right-radius:26px;
+      box-shadow:0 8px 24px rgba(10,143,47,.2);
+    }
+    .title{
+      font-size:28px;
+      font-weight:800;
+      margin:0 0 6px;
+    }
+    .subtitle{
+      margin:0;
+      font-size:16px;
+      opacity:.95;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:18px;
+    }
+    .card{
+      background:#fff;
+      border-radius:20px;
+      padding:18px;
+      box-shadow:0 8px 24px rgba(0,0,0,.06);
+      margin-bottom:16px;
+    }
+    h2{
+      margin:0 0 12px;
+      font-size:24px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    label{
+      display:block;
+      font-size:16px;
+      font-weight:700;
+      margin:8px 0 6px;
+    }
+    input,select,textarea{
+      width:100%;
+      box-sizing:border-box;
+      padding:14px;
+      border:1px solid #d1d5db;
+      border-radius:12px;
+      font-size:16px;
+      background:#fff;
+    }
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+    .readonly{
+      background:#eef2f7;
+    }
+    .full{
+      grid-column:1 / -1;
+    }
+    .btn-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:14px 18px;
+      font-size:16px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn-primary{
+      background:#0a8f2f;
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .btn[disabled]{
+      opacity:.7;
+      cursor:not-allowed;
+    }
+    .msg{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef7ee;
+      color:#166534;
+      font-size:16px;
+      line-height:1.5;
+      white-space:pre-wrap;
+      display:none;
+    }
+    .msg.error{
+      background:#fef2f2;
+      color:#991b1b;
+    }
+    .debug{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef2ff;
+      color:#374151;
+      font-size:12px;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .hint{
+      font-size:13px;
+      color:#6b7280;
+      margin-top:6px;
+    }
+    @media (max-width:640px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+      .title{font-size:24px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">ส่งเอกสารค่าตอบแทน</div>
+    <p class="subtitle">ระบบเบิกค่าตอบแทน รพ.ศีขรภูมิ</p>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>ข้อมูลผู้ส่งเอกสาร</h2>
+      <div class="grid">
+        <div>
+          <label>LINE User ID</label>
+          <input id="line_user_id" class="readonly" readonly>
+        </div>
+        <div>
+          <label>ชื่อจาก LINE</label>
+          <input id="display_name" class="readonly" readonly>
+        </div>
+        <div>
+          <label>ชื่อ-สกุล</label>
+          <input id="full_name" class="readonly" readonly>
+        </div>
+        <div>
+          <label>หน่วยงาน / แผนก</label>
+          <input id="department_name" class="readonly" readonly>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>รายละเอียดเอกสาร</h2>
+      <div class="grid">
+        <div>
+          <label>เดือน</label>
+          <select id="report_month">
+            <option value="">-- เลือกเดือน --</option>
+            <option value="01">มกราคม</option>
+            <option value="02">กุมภาพันธ์</option>
+            <option value="03">มีนาคม</option>
+            <option value="04">เมษายน</option>
+            <option value="05">พฤษภาคม</option>
+            <option value="06">มิถุนายน</option>
+            <option value="07">กรกฎาคม</option>
+            <option value="08">สิงหาคม</option>
+            <option value="09">กันยายน</option>
+            <option value="10">ตุลาคม</option>
+            <option value="11">พฤศจิกายน</option>
+            <option value="12">ธันวาคม</option>
+          </select>
+        </div>
+        <div>
+          <label>ปี</label>
+          <input id="report_year" type="number" min="2560" max="2600" placeholder="เช่น 2569">
+        </div>
+        <div>
+          <label>ประเภทเอกสาร</label>
+          <select id="document_type">
+            <option value="">-- เลือกประเภทเอกสาร --</option>
+            <option value="ot_request">แบบฟอร์ม OT</option>
+            <option value="payment_request">แบบเบิกค่าตอบแทน</option>
+            <option value="supporting_docs">เอกสารประกอบ</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+        </div>
+        <div>
+          <label>จำนวนเงิน (ถ้ามี)</label>
+          <input id="amount" type="number" min="0" step="0.01" placeholder="เช่น 1500">
+        </div>
+        <div class="full">
+          <label>รายละเอียดเพิ่มเติม</label>
+          <textarea id="note" placeholder="ระบุรายละเอียด เช่น เวรวันที่, หมายเหตุ, หรือข้อมูลประกอบการตรวจสอบ"></textarea>
+        </div>
+        <div class="full">
+          <label>แนบไฟล์</label>
+          <input id="file_input" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+          <div class="hint">รองรับไฟล์เอกสารและรูปภาพ สำหรับการใช้งานจริงต้องเพิ่มฝั่ง Apps Script เพื่อรับไฟล์และบันทึกลง Google Drive</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="saveBtn" class="btn btn-primary" onclick="submitDoc()">ส่งเอกสาร</button>
+        <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+      <div id="debug" class="debug"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+    function log(msg){
+      const el = document.getElementById('debug');
+      el.innerText += msg + "\n";
+      console.log(msg);
+    }
+
+    function setMessage(msg, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = msg ? 'block' : 'none';
+      el.className = isError ? 'msg error' : 'msg';
+      el.innerText = msg || '';
+    }
+
+    function setLoading(isLoading){
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = isLoading;
+      btn.innerText = isLoading ? 'กำลังส่งเอกสาร...' : 'ส่งเอกสาร';
+    }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+        const script = document.createElement('script');
+        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error('JSONP timeout'));
+        },10000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          if(script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[cb]; } catch(e) {}
+        }
+
+        window[cb] = function(data){
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function(){
+          cleanup();
+          reject(new Error('JSONP failed'));
+        };
+
+        script.src = src;
+        document.body.appendChild(script);
+      });
+    }
+
+    function goDashboard(){
+      location.href = 'dashboard.html';
+    }
+
+    async function toBase64(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result || '';
+          const base64 = String(result).split(',')[1] || '';
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function initPage(){
+      try{
+        setMessage('กำลังเชื่อมต่อ LINE...');
+        log('เริ่ม liff.init()');
+        await liff.init({ liffId: LIFF_ID });
+        log('liff.init สำเร็จ');
+
+        if(!liff.isLoggedIn()){
+          liff.login({ redirectUri: location.href });
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const lineUserId = profile.userId || '';
+        const displayName = profile.displayName || '';
+
+        document.getElementById('line_user_id').value = lineUserId;
+        document.getElementById('display_name').value = displayName;
+        log('LINE User ID: ' + lineUserId);
+
+        const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
+        log('getUserByLineId response: ' + JSON.stringify(res));
+
+        if(!(res && res.data)){
+          setMessage('ยังไม่พบข้อมูลผู้ใช้ กรุณาสมัครสมาชิกก่อน', true);
+          setTimeout(() => { location.href = 'register_fixed.html'; }, 1000);
+          return;
+        }
+
+        const user = res.data;
+        document.getElementById('full_name').value = user.full_name || '';
+        document.getElementById('department_name').value = user.department_name || user.department_id || '-';
+
+        const now = new Date();
+        const thaiYear = now.getFullYear() + 543;
+        const month = String(now.getMonth() + 1).padStart(2,'0');
+        document.getElementById('report_year').value = thaiYear;
+        document.getElementById('report_month').value = month;
+
+        setMessage('');
+      }catch(err){
+        log('ERROR initPage: ' + (err.message || err));
+        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\n' + (err.message || err), true);
+      }
+    }
+
+    async function submitDoc(){
+      const lineUserId = document.getElementById('line_user_id').value.trim();
+      const displayName = document.getElementById('display_name').value.trim();
+      const fullName = document.getElementById('full_name').value.trim();
+      const departmentName = document.getElementById('department_name').value.trim();
+      const reportMonth = document.getElementById('report_month').value;
+      const reportYear = document.getElementById('report_year').value.trim();
+      const documentType = document.getElementById('document_type').value;
+      const amount = document.getElementById('amount').value.trim();
+      const note = document.getElementById('note').value.trim();
+      const file = document.getElementById('file_input').files[0];
+
+      if(!lineUserId){
+        setMessage('ยังไม่พบ LINE User ID', true);
+        return;
+      }
+      if(!reportMonth){
+        setMessage('กรุณาเลือกเดือน', true);
+        return;
+      }
+      if(!reportYear){
+        setMessage('กรุณากรอกปี', true);
+        return;
+      }
+      if(!documentType){
+        setMessage('กรุณาเลือกประเภทเอกสาร', true);
+        return;
+      }
+
+      try{
+        setLoading(true);
+        setMessage('กำลังส่งเอกสาร...');
+        const payload = {
+          action: 'submitDocument',
+          line_user_id: lineUserId,
+          display_name: displayName,
+          full_name: fullName,
+          department_name: departmentName,
+          report_month: reportMonth,
+          report_year: reportYear,
+          document_type: documentType,
+          amount: amount,
+          note: note,
+          status: 'รอตรวจสอบ'
+        };
+
+        if(file){
+          payload.file_name = file.name;
+          payload.file_mime = file.type || 'application/octet-stream';
+          payload.file_base64 = await toBase64(file);
+        }
+
+        log('submitDocument payload ready');
+
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        log('submitDocument response: ' + JSON.stringify(result));
+
+        if(result && (result.ok || result.success)){
+          setMessage((result.message || 'ส่งเอกสารสำเร็จ') + '\nเลขรายการ: ' + (result.report_id || '-'));
+          document.getElementById('document_type').value = '';
+          document.getElementById('amount').value = '';
+          document.getElementById('note').value = '';
+          document.getElementById('file_input').value = '';
+        }else{
+          throw new Error((result && result.message) || 'ส่งเอกสารไม่สำเร็จ');
+        }
+      }catch(err){
+        log('ERROR submitDocument: ' + (err.message || err));
+        setMessage('ยังไม่สามารถส่งเอกสารได้\n' + (err.message || err) + '\nขั้นต่อไปต้องเพิ่มโค้ดฝั่ง Apps Script สำหรับ action=submitDocument', true);
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
