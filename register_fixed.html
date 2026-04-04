@@ -287,8 +287,10 @@
         setTimeout(() => {
         location.href = 'dashboard.html';
         }, 600);
-      }
-      if (window.liff && liff.isInClient()) {
+      } else {
+        throw new Error((res && res.message) || 'บันทึกข้อมูลไม่สำเร็จ');
+        }      
+        if (window.liff && liff.isInClient()) {
          setTimeout(() => {
           liff.closeWindow();
           }, 1000);
