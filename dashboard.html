@@ -283,10 +283,12 @@
     function comingSoon(name){
       alert(name + ' กำลังพัฒนา');
     }
-
     function goPage(page){
-    window.location.href = page;
+      const LIFF_ID = "2009688300-9LChW0zg";
+      window.location.href = "https://liff.line.me/" + LIFF_ID + "?path=" + encodeURIComponent(page);
     }
+
+    
     async function initDashboard(){
       try{
         setStatus('กำลังเชื่อมต่อ LINE...');
