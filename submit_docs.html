@@ -6,200 +6,44 @@
   <title>ส่งเอกสารค่าตอบแทน</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body{
-      margin:0;
-      font-family:'Sarabun',system-ui,sans-serif;
-      background:#f4f7fb;
-      color:#111827;
-    }
-    .topbar{
-      background:linear-gradient(135deg,#0a8f2f,#16a34a);
-      color:#fff;
-      padding:24px 18px 30px;
-      border-bottom-left-radius:26px;
-      border-bottom-right-radius:26px;
-      box-shadow:0 8px 24px rgba(10,143,47,.22);
-    }
-    .title{
-      margin:0 0 6px;
-      font-size:30px;
-      font-weight:800;
-    }
-    .subtitle{
-      margin:0;
-      font-size:16px;
-      opacity:.95;
-    }
-    .wrap{
-      max-width:960px;
-      margin:0 auto;
-      padding:18px;
-    }
-    .card{
-      background:#fff;
-      border-radius:22px;
-      padding:18px;
-      box-shadow:0 8px 24px rgba(0,0,0,.06);
-      margin-bottom:16px;
-    }
-    h2{
-      margin:0 0 12px;
-      font-size:24px;
-    }
-    .subhead{
-      margin:0 0 10px;
-      color:#4b5563;
-      line-height:1.6;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-    .full{
-      grid-column:1 / -1;
-    }
-    label{
-      display:block;
-      font-size:16px;
-      font-weight:700;
-      margin:8px 0 6px;
-    }
-    input,select,textarea{
-      width:100%;
-      box-sizing:border-box;
-      padding:14px;
-      border:1px solid #d1d5db;
-      border-radius:12px;
-      font-size:16px;
-      background:#fff;
-    }
-    textarea{
-      min-height:96px;
-      resize:vertical;
-    }
-    .readonly{
-      background:#eef2f7;
-    }
-    .checklist{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px 18px;
-      margin-top:8px;
-    }
-    .check-item{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      background:#f8fafc;
-      border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding:12px;
-    }
-    .check-item input[type="checkbox"]{
-      width:22px;
-      height:22px;
-      margin-top:2px;
-      flex:0 0 auto;
-    }
-    .check-item span{
-      font-size:16px;
-      line-height:1.45;
-      font-weight:600;
-    }
-    .timeline{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-top:12px;
-    }
-    .step{
-      background:#f8fafc;
-      border:1px solid #e5e7eb;
-      border-radius:16px;
-      padding:12px;
-      font-size:14px;
-      line-height:1.5;
-    }
-    .step b{
-      display:block;
-      color:#0a8f2f;
-      margin-bottom:4px;
-      font-size:15px;
-    }
-    .warn{
-      margin-top:12px;
-      background:#fff8e6;
-      color:#8a5a00;
-      border-radius:14px;
-      padding:12px 14px;
-      font-size:15px;
-      line-height:1.6;
-    }
-    .btn-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:16px;
-    }
-    .btn{
-      border:none;
-      border-radius:12px;
-      padding:14px 18px;
-      font-size:16px;
-      font-weight:800;
-      cursor:pointer;
-    }
-    .btn-primary{
-      background:#0a8f2f;
-      color:#fff;
-    }
-    .btn-secondary{
-      background:#e5e7eb;
-      color:#111827;
-    }
-    .btn[disabled]{
-      opacity:.7;
-      cursor:not-allowed;
-    }
-    .msg{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:#eef7ee;
-      color:#166534;
-      font-size:16px;
-      line-height:1.6;
-      white-space:pre-wrap;
-      display:none;
-    }
-    .msg.error{
-      background:#fef2f2;
-      color:#991b1b;
-    }
-    .debug{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:#eef2ff;
-      color:#374151;
-      font-size:12px;
-      white-space:pre-wrap;
-      word-break:break-word;
-    }
-    .mini{
-      font-size:13px;
-      color:#6b7280;
-      margin-top:6px;
-    }
-    @media (max-width:760px){
-      .grid,.checklist,.timeline{
-        grid-template-columns:1fr;
-      }
-      .title{
-        font-size:24px;
-      }
-    }
+    body{margin:0;font-family:'Sarabun',system-ui,sans-serif;background:#f4f7fb;color:#111827;}
+    .topbar{background:linear-gradient(135deg,#0a8f2f,#16a34a);color:#fff;padding:24px 18px 30px;border-bottom-left-radius:26px;border-bottom-right-radius:26px;box-shadow:0 8px 24px rgba(10,143,47,.22);}
+    .title{margin:0 0 6px;font-size:30px;font-weight:800;}
+    .subtitle{margin:0;font-size:16px;opacity:.95;}
+    .wrap{max-width:960px;margin:0 auto;padding:18px;}
+    .card{background:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin-bottom:16px;}
+    h2{margin:0 0 12px;font-size:24px;}
+    .subhead{margin:0 0 10px;color:#4b5563;line-height:1.6;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .full{grid-column:1 / -1;}
+    label{display:block;font-size:16px;font-weight:700;margin:8px 0 6px;}
+    input,select,textarea{width:100%;box-sizing:border-box;padding:14px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;background:#fff;}
+    textarea{min-height:96px;resize:vertical;}
+    .readonly{background:#eef2f7;}
+    .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+    .choice{display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:14px;cursor:pointer;}
+    .choice input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;}
+    .choice strong{display:block;font-size:17px;margin-bottom:4px;}
+    .choice small{color:#4b5563;line-height:1.5;}
+    .checklist{display:grid;grid-template-columns:1fr;gap:10px 18px;margin-top:8px;}
+    .check-item{display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:12px;}
+    .check-item input[type="checkbox"]{width:22px;height:22px;margin-top:2px;flex:0 0 auto;}
+    .check-item span{font-size:16px;line-height:1.45;font-weight:600;}
+    .doc-note{margin-top:10px;background:#eef6ff;color:#1e3a8a;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.6;}
+    .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;}
+    .step{background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:12px;font-size:14px;line-height:1.5;}
+    .step b{display:block;color:#0a8f2f;margin-bottom:4px;font-size:15px;}
+    .warn{margin-top:12px;background:#fff8e6;color:#8a5a00;border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.6;}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+    .btn{border:none;border-radius:12px;padding:14px 18px;font-size:16px;font-weight:800;cursor:pointer;}
+    .btn-primary{background:#0a8f2f;color:#fff;}
+    .btn-secondary{background:#e5e7eb;color:#111827;}
+    .btn[disabled]{opacity:.7;cursor:not-allowed;}
+    .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:16px;line-height:1.6;white-space:pre-wrap;display:none;}
+    .msg.error{background:#fef2f2;color:#991b1b;}
+    .debug{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+    .mini{font-size:13px;color:#6b7280;margin-top:6px;}
+    @media (max-width:760px){.grid,.choice-grid,.timeline{grid-template-columns:1fr;}.title{font-size:24px;}}
   </style>
 </head>
 <body>
@@ -212,22 +56,31 @@
     <div class="card">
       <h2>ข้อมูลหน่วยงานผู้ส่ง</h2>
       <div class="grid">
-        <div>
-          <label>LINE User ID</label>
-          <input id="line_user_id" class="readonly" readonly>
-        </div>
-        <div>
-          <label>ชื่อจาก LINE</label>
-          <input id="display_name" class="readonly" readonly>
-        </div>
-        <div>
-          <label>ชื่อ-สกุลผู้ส่ง</label>
-          <input id="full_name" class="readonly" readonly>
-        </div>
-        <div>
-          <label>หน่วยงาน / แผนก</label>
-          <input id="department_name" class="readonly" readonly>
-        </div>
+        <div><label>LINE User ID</label><input id="line_user_id" class="readonly" readonly></div>
+        <div><label>ชื่อจาก LINE</label><input id="display_name" class="readonly" readonly></div>
+        <div><label>ชื่อ-สกุลผู้ส่ง</label><input id="full_name" class="readonly" readonly></div>
+        <div><label>หน่วยงาน / แผนก</label><input id="department_name" class="readonly" readonly></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ประเภทการเบิกเงิน</h2>
+      <p class="subhead">เลือกแหล่งงบประมาณก่อน ระบบจะแสดงรายการเอกสารที่ต้องใช้ให้ตรงตามประเภทการเบิก</p>
+      <div class="choice-grid">
+        <label class="choice">
+          <input type="radio" name="fund_source" value="moph" checked onchange="updateDocChecklist()">
+          <div>
+            <strong>กระทรวงสาธารณสุข</strong>
+            <small>ใช้ชุดเอกสาร 5 รายการ และบันทึกวงเงินฝั่งกระทรวงสาธารณสุข</small>
+          </div>
+        </label>
+        <label class="choice">
+          <input type="radio" name="fund_source" value="mof" onchange="updateDocChecklist()">
+          <div>
+            <strong>กระทรวงการคลัง</strong>
+            <small>ใช้ชุดเอกสาร 7 รายการ และบันทึกวงเงินฝั่งกระทรวงการคลัง</small>
+          </div>
+        </label>
       </div>
     </div>
 
@@ -235,14 +88,8 @@
       <h2>วันและเวลาที่ส่งเอกสาร</h2>
       <p class="subhead">ใช้บันทึกเวลาที่หน่วยงานส่งเอกสารตัวจริงให้เจ้าหน้าที่เบิกค่าตอบแทน</p>
       <div class="grid">
-        <div>
-          <label>วันที่ส่งเอกสาร</label>
-          <input id="submit_date" type="date">
-        </div>
-        <div>
-          <label>เวลาที่ส่งเอกสาร</label>
-          <input id="submit_time" type="time">
-        </div>
+        <div><label>วันที่ส่งเอกสาร</label><input id="submit_date" type="date"></div>
+        <div><label>เวลาที่ส่งเอกสาร</label><input id="submit_time" type="time"></div>
       </div>
       <div class="warn">หน่วยงานต้องจัดส่งหลักฐานให้กลุ่มงานทรัพยากรบุคคล ภายในวันที่ 2 ของเดือน</div>
     </div>
@@ -250,28 +97,25 @@
     <div class="card">
       <h2>รายการเอกสารที่ส่งมา</h2>
       <p class="subhead">ติ๊กเครื่องหมายถูกเฉพาะเอกสารที่ส่งมาพร้อมชุดเอกสารในครั้งนี้</p>
-
       <div class="checklist">
-        <label class="check-item"><input type="checkbox" id="doc_schedule"><span>1. ตารางเวร</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_claim"><span>2. ตารางเบิก</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_sign"><span>3. ใบเซ็นต์ชื่อปฏิบัติงาน</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_summary"><span>4. ใบสรุปค่าตอบแทนรายเดือน</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_overtime_request"><span>5. บันทึกขอขึ้นปฏิบัติงานนอกเวลาราชการ</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_memo_claim"><span>6. บันทึกข้อความขอเบิกเงิน</span></label>
-        <label class="check-item"><input type="checkbox" id="doc_shift_change"><span>7. ใบแลกเวร</span></label>
+        <label class="check-item"><input type="checkbox" id="doc_schedule"><span id="doc_label_1"></span></label>
+        <label class="check-item"><input type="checkbox" id="doc_claim"><span id="doc_label_2"></span></label>
+        <label class="check-item"><input type="checkbox" id="doc_sign"><span id="doc_label_3"></span></label>
+        <label class="check-item"><input type="checkbox" id="doc_summary"><span id="doc_label_4"></span></label>
+        <label class="check-item"><input type="checkbox" id="doc_overtime_request"><span id="doc_label_5"></span></label>
+        <label class="check-item" id="doc_item_6"><input type="checkbox" id="doc_memo_claim"><span id="doc_label_6"></span></label>
+        <label class="check-item" id="doc_item_7"><input type="checkbox" id="doc_shift_change"><span id="doc_label_7"></span></label>
       </div>
+      <div id="doc_note" class="doc-note"></div>
     </div>
 
     <div class="card">
       <h2>ข้อมูลจำนวนเงิน</h2>
       <div class="grid">
-        <div>
-          <label>จำนวนเงินรวมเพื่อเบิกจากกระทรวงสาธารณสุข (บาท)</label>
-          <input id="amount_moph" type="number" min="0" step="0.01" placeholder="เช่น 12500.00">
-        </div>
-        <div>
-          <label>จำนวนเงินรวมเพื่อเบิกจากกระทรวงการคลัง (บาท)</label>
-          <input id="amount_mof" type="number" min="0" step="0.01" placeholder="เช่น 5800.00">
+        <div class="full">
+          <label id="amount_label">จำนวนเงินรวมเพื่อเบิกจากกระทรวงสาธารณสุข (บาท)</label>
+          <input id="amount_total" type="number" min="0" step="0.01" placeholder="เช่น 12500.00">
+          <div class="mini" id="amount_hint">ระบบจะบันทึกเข้าช่องจำนวนเงินฝั่งกระทรวงสาธารณสุข</div>
         </div>
         <div class="full">
           <label>หมายเหตุเพิ่มเติม</label>
@@ -299,7 +143,6 @@
         <button id="saveBtn" class="btn btn-primary" onclick="submitDoc()">ส่งเอกสาร</button>
         <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
       </div>
-
       <div id="msg" class="msg"></div>
       <div id="debug" class="debug"></div>
     </div>
@@ -309,9 +152,28 @@
     const LIFF_ID = "2009688300-9LChW0zg";
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
+    const DOCS = {
+      moph: [
+        '1. บันทึกข้อความขออนุมัติขึ้นปฏิบัติงานนอกเวลาราชการและวันหยุดราชการ',
+        '2. บัญชีรายชื่อเจ้าหน้าที่เพื่อขออนุมัติขึ้นปฏิบัติงานนอกเวลาและในวันหยุดราชการ',
+        '3. บันทึกข้อความขออนุมัติเบิกเงินค่าตอบแทนการปฏิบัติงานนอกเวลาราชการและวันหยุดราชการ',
+        '4. หลักฐานประกอบการขออนุมัติการเบิกเงินและการจ่ายเงินค่าตอบแทนการปฏิบัติงานนอกเวลาราชการได้',
+        '5. แบบฟอร์มใบประทับเพิ่ม'
+      ],
+      mof: [
+        '1. บันทึกข้อความขออนุมัติขึ้นปฏิบัติงานนอกเวลาราชการและวันหยุดราชการ',
+        '2. บัญชีรายชื่อเจ้าหน้าที่เพื่อขออนุมัติขึ้นปฏิบัติงานนอกเวลาและในวันหยุดราชการ',
+        '3. บันทึกข้อความขออนุมัติเบิกค่าตอบแทนการปฏิบัติงานนอกเวลาราชการและวันหยุดราชการ',
+        '4. หลักฐานประกอบการขออนุมัติเบิกเงินและการจ่ายเงินค่าตอบแทนการปฏิบัติงานนอกเวลาราชการได้แก่',
+        '5. บันทึกข้อความรายงานผลการปฏิบัติงานนอกเวลาราชการประจำเดือน',
+        '6. รายงานสรุปการปฏิบัติงานนอกเวลาราชการ',
+        '7. แบบฟอร์มใบประทับเพิ่ม'
+      ]
+    };
+
     function log(msg){
       const el = document.getElementById('debug');
-      el.innerText += msg + "\n";
+      el.innerText += msg + "\\n";
       console.log(msg);
     }
 
@@ -333,11 +195,7 @@
         const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
         const script = document.createElement('script');
         const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-
-        const timer = setTimeout(()=>{
-          cleanup();
-          reject(new Error('JSONP timeout'));
-        },10000);
+        const timer = setTimeout(()=>{ cleanup(); reject(new Error('JSONP timeout')); },10000);
 
         function cleanup(){
           clearTimeout(timer);
@@ -345,24 +203,14 @@
           try { delete window[cb]; } catch(e) {}
         }
 
-        window[cb] = function(data){
-          cleanup();
-          resolve(data);
-        };
-
-        script.onerror = function(){
-          cleanup();
-          reject(new Error('JSONP failed'));
-        };
-
+        window[cb] = function(data){ cleanup(); resolve(data); };
+        script.onerror = function(){ cleanup(); reject(new Error('JSONP failed')); };
         script.src = src;
         document.body.appendChild(script);
       });
     }
 
-    function goDashboard(){
-      location.href = 'dashboard.html';
-    }
+    function goDashboard(){ location.href = 'dashboard.html'; }
 
     function setDefaultDateTime(){
       const now = new Date();
@@ -373,6 +221,50 @@
       const mi = String(now.getMinutes()).padStart(2,'0');
       document.getElementById('submit_date').value = `${yyyy}-${mm}-${dd}`;
       document.getElementById('submit_time').value = `${hh}:${mi}`;
+    }
+
+    function getFundSource(){
+      const checked = document.querySelector('input[name="fund_source"]:checked');
+      return checked ? checked.value : 'moph';
+    }
+
+    function updateDocChecklist(){
+      const source = getFundSource();
+      const docs = DOCS[source];
+      const inputIds = ['doc_schedule','doc_claim','doc_sign','doc_summary','doc_overtime_request','doc_memo_claim','doc_shift_change'];
+
+      for(let i = 1; i <= 7; i++){
+        const label = document.getElementById(`doc_label_${i}`);
+        const item = document.getElementById(`doc_item_${i}`);
+        const input = document.getElementById(inputIds[i-1]);
+
+        if(i <= docs.length){
+          label.textContent = docs[i-1];
+          if(item) item.style.display = 'flex';
+          input.disabled = false;
+        }else{
+          label.textContent = '';
+          if(item) item.style.display = 'none';
+          input.checked = false;
+          input.disabled = true;
+        }
+      }
+
+      const amountLabel = document.getElementById('amount_label');
+      const amountHint = document.getElementById('amount_hint');
+      const docNote = document.getElementById('doc_note');
+
+      if(source === 'moph'){
+        amountLabel.textContent = 'จำนวนเงินรวมเพื่อเบิกจากกระทรวงสาธารณสุข (บาท)';
+        amountHint.textContent = 'ระบบจะบันทึกเข้าช่องจำนวนเงินฝั่งกระทรวงสาธารณสุข';
+        docNote.textContent = 'กรณีเบิกจากกระทรวงสาธารณสุข ใช้เอกสาร 5 รายการ';
+      }else{
+        amountLabel.textContent = 'จำนวนเงินรวมเพื่อเบิกจากกระทรวงการคลัง (บาท)';
+        amountHint.textContent = 'ระบบจะบันทึกเข้าช่องจำนวนเงินฝั่งกระทรวงการคลัง';
+        docNote.textContent = 'กรณีเบิกจากกระทรวงการคลัง ใช้เอกสาร 7 รายการ';
+      }
+
+      log('updateDocChecklist: ' + source);
     }
 
     async function initPage(){
@@ -409,30 +301,33 @@
         document.getElementById('department_name').value = user.department_name || user.department_id || '-';
 
         setDefaultDateTime();
+        updateDocChecklist();
         setMessage('');
       }catch(err){
         log('ERROR initPage: ' + (err.message || err));
-        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\n' + (err.message || err), true);
+        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\\n' + (err.message || err), true);
       }
     }
 
     function checked(id){
-      return document.getElementById(id).checked ? 'Y' : '';
+      const el = document.getElementById(id);
+      return (!el.disabled && el.checked) ? 'Y' : '';
     }
 
     async function submitDoc(){
+      const source = getFundSource();
       const lineUserId = document.getElementById('line_user_id').value.trim();
       const displayName = document.getElementById('display_name').value.trim();
       const fullName = document.getElementById('full_name').value.trim();
       const departmentName = document.getElementById('department_name').value.trim();
       const submitDate = document.getElementById('submit_date').value;
       const submitTime = document.getElementById('submit_time').value;
-      const amountMoph = document.getElementById('amount_moph').value.trim();
-      const amountMof = document.getElementById('amount_mof').value.trim();
+      const amountTotal = document.getElementById('amount_total').value.trim();
       const note = document.getElementById('note').value.trim();
 
       const payload = {
         action: 'submitDocument',
+        fund_source: source,
         line_user_id: lineUserId,
         display_name: displayName,
         full_name: fullName,
@@ -446,28 +341,18 @@
         doc_overtime_request: checked('doc_overtime_request'),
         doc_memo_claim: checked('doc_memo_claim'),
         doc_shift_change: checked('doc_shift_change'),
-        amount_moph: amountMoph,
-        amount_mof: amountMof,
+        amount_moph: source === 'moph' ? amountTotal : '',
+        amount_mof: source === 'mof' ? amountTotal : '',
         note: note,
         status: 'รอตรวจสอบ'
       };
 
-      if(!lineUserId){
-        setMessage('ยังไม่พบ LINE User ID', true);
-        return;
-      }
-      if(!submitDate){
-        setMessage('กรุณาระบุวันที่ส่งเอกสาร', true);
-        return;
-      }
-      if(!submitTime){
-        setMessage('กรุณาระบุเวลาที่ส่งเอกสาร', true);
-        return;
-      }
+      if(!lineUserId){ setMessage('ยังไม่พบ LINE User ID', true); return; }
+      if(!submitDate){ setMessage('กรุณาระบุวันที่ส่งเอกสาร', true); return; }
+      if(!submitTime){ setMessage('กรุณาระบุเวลาที่ส่งเอกสาร', true); return; }
       if(!payload.doc_schedule && !payload.doc_claim && !payload.doc_sign && !payload.doc_summary &&
          !payload.doc_overtime_request && !payload.doc_memo_claim && !payload.doc_shift_change){
-        setMessage('กรุณาเลือกอย่างน้อย 1 รายการเอกสารที่ส่งมา', true);
-        return;
+        setMessage('กรุณาเลือกอย่างน้อย 1 รายการเอกสารที่ส่งมา', true); return;
       }
 
       try{
@@ -485,13 +370,13 @@
         log('submitDocument response: ' + JSON.stringify(result));
 
         if(result && (result.ok || result.success)){
-          setMessage((result.message || 'ส่งเอกสารสำเร็จ') + '\nเลขรายการ: ' + (result.report_id || '-'));
+          setMessage((result.message || 'ส่งเอกสารสำเร็จ') + '\\nเลขรายการ: ' + (result.report_id || '-'));
         }else{
           throw new Error((result && result.message) || 'ส่งเอกสารไม่สำเร็จ');
         }
       }catch(err){
         log('ERROR submitDocument: ' + (err.message || err));
-        setMessage('แบบฟอร์มหน้าจอพร้อมใช้งานแล้ว แต่ยังต้องเพิ่ม code.gs สำหรับ action=submitDocument\n' + (err.message || err), true);
+        setMessage('ยังไม่สามารถส่งเอกสารได้\\n' + (err.message || err), true);
       }finally{
         setLoading(false);
       }
