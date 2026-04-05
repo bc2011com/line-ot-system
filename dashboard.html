@@ -284,6 +284,9 @@
       alert(name + ' กำลังพัฒนา');
     }
 
+    function goPage(page){
+    window.location.href = page;
+    }
     async function initDashboard(){
       try{
         setStatus('กำลังเชื่อมต่อ LINE...');
@@ -328,10 +331,7 @@
     }
 
     initDashboard();
-    function goPage(page){
-      const LIFF_ID = "2009688300-9LChW0zg";
-       window.location.href = "https://liff.line.me/" + LIFF_ID + "?path=" + encodeURIComponent(page);
-    }
+
     
   </script>
 </body>
