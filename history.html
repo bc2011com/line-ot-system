@@ -22,7 +22,7 @@
     .btn-secondary{background:#e5e7eb;color:#111827;}
     .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:16px;line-height:1.6;white-space:pre-wrap;display:none;}
     .msg.error{background:#fef2f2;color:#991b1b;}
-    .debug{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+    .debug{display:none; margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
     .report-list{display:grid;gap:12px;}
     .report-item{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#f8fafc;}
     .report-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
@@ -58,7 +58,7 @@
         <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
       </div>
       <div id="msg" class="msg"></div>
-      <div id="debug" class="debug"></div>
+      <div id="debug" class="debug" style="display:none;"></div>
     </div>
 
     <div class="card">
@@ -72,9 +72,12 @@
     const LIFF_ID = "2009688300-9LChW0zg";
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
+const DEBUG_MODE = false;
+
     function log(msg){
+      if(!DEBUG_MODE) return;
       const el = document.getElementById('debug');
-      el.innerText += msg + "\\n";
+      if(el) el.innerText += msg + "\\n";
       console.log(msg);
     }
 
