@@ -265,10 +265,13 @@
     const LIFF_ID = "2009688300-9LChW0zg";
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
+    const DEBUG_MODE = false;
+
     function log(msg){
-      const el = document.getElementById('debug');
-      el.innerText += msg + "\\n";
-      console.log(msg);
+      if(!DEBUG_MODE) return;
+        const el = document.getElementById('debug');
+      if(el) el.innerText += msg + "\\n";
+        console.log(msg);
     }
 
     function setMessage(msg, isError=false){
