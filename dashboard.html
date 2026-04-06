@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard ระบบ OT</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "Sarabun", sans-serif;
+      background: #f4f7fb;
+      color: #101828;
+    }
+    .hero {
+      background: linear-gradient(135deg, #12a53a, #08933a);
+      color: #fff;
+      padding: 30px 20px 42px;
+      border-bottom-left-radius: 34px;
+      border-bottom-right-radius: 34px;
+      box-shadow: 0 12px 24px rgba(8,147,58,.2);
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+    .hero p {
+      margin: 10px 0 0;
+      font-size: 1.15rem;
+      opacity: .95;
+    }
+    .wrap {
+      max-width: 880px;
+      margin: -20px auto 24px;
+      padding: 0 16px 40px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 22px 18px;
+      box-shadow: 0 12px 30px rgba(16,24,40,.08);
+      border: 1px solid #e4e7ec;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.9rem;
+      line-height: 1.2;
+    }
+    .muted {
+      color: #667085;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .profile-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 16px 18px;
+    }
+    .profile-item .label {
+      color: #667085;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .profile-item .value {
+      color: #101828;
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin: 6px 0 14px;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .menu-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      border-radius: 20px;
+      padding: 18px 18px;
+      background: #ffffff;
+      border: 1px solid #d0d5dd;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(16,24,40,.05);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .menu-btn:active {
+      transform: scale(.99);
+    }
+    .menu-btn .title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #101828;
+      margin-bottom: 6px;
+    }
+    .menu-btn .desc {
+      font-size: 1rem;
+      color: #667085;
+      line-height: 1.6;
+    }
+    .menu-btn.admin {
+      border: 2px solid #16a34a;
+      background: #f0fdf4;
+    }
+    .role-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: .95rem;
+      margin-top: 8px;
+    }
+    .role-admin {
+      background: #ecfdf3;
+      color: #027a48;
+      border: 1px solid #abefc6;
+    }
+    .role-staff {
+      background: #eff8ff;
+      color: #175cd3;
+      border: 1px solid #b2ddff;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .small-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #eef2f6;
+      color: #344054;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .small-btn.danger {
+      background: #fee4e2;
+      color: #b42318;
+    }
+    .hidden { display: none !important; }
+    .msg {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .msg.ok {
+      background: #ecfdf3;
+      color: #027a48;
+      border: 1px solid #abefc6;
+    }
+    .msg.err {
+      background: #fef3f2;
+      color: #b42318;
+      border: 1px solid #fecdca;
+    }
+    .debug {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      color: #475467;
+      font-size: .9rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      display: none;
+    }
+    @media (min-width: 720px) {
+      .profile-grid, .menu-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h1>Dashboard ระบบ OT</h1>
+    <p>ระบบเบิกค่าตอบแทน โรงพยาบาลศีขรภูมิ</p>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>ข้อมูลผู้ใช้งาน</h2>
+      <div class="muted">ข้อมูลนี้ดึงจาก LINE และฐานข้อมูลที่ลงทะเบียนไว้</div>
+
+      <div class="profile-grid">
+        <div class="profile-item">
+          <div class="label">ชื่อจาก LINE</div>
+          <div class="value" id="display_name">-</div>
+        </div>
+        <div class="profile-item">
+          <div class="label">ชื่อ-สกุล</div>
+          <div class="value" id="full_name">-</div>
+        </div>
+        <div class="profile-item">
+          <div class="label">สิทธิการใช้งาน</div>
+          <div class="value" id="role_text">-</div>
+          <div id="role_badge" class="role-badge role-staff">-</div>
+        </div>
+        <div class="profile-item">
+          <div class="label">หน่วยงาน / แผนก</div>
+          <div class="value" id="department_name">-</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="small-btn" type="button" onclick="goToRegister()">แก้ไขข้อมูลส่วนตัว</button>
+        <button class="small-btn danger" type="button" onclick="logoutLiff()">ออกจากระบบ</button>
+      </div>
+
+      <div id="msg"></div>
+      <div id="debug" class="debug"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">เมนูสำหรับทุกคน</div>
+      <div class="menu-grid">
+        <button class="menu-btn" type="button" onclick="goPage('task.html')">
+          <div class="title">คำสั่งปฏิบัติงาน</div>
+          <div class="desc">ดาวน์โหลดคำสั่งปฏิบัติงานแยกตามกลุ่มที่เกี่ยวข้อง</div>
+        </button>
+
+        <button class="menu-btn" type="button" onclick="goPage('download.html')">
+          <div class="title">ดาวน์โหลดฟอร์ม</div>
+          <div class="desc">ดาวน์โหลดแบบฟอร์มและเอกสารประกอบการเบิกค่าตอบแทน</div>
+        </button>
+
+        <button class="menu-btn" type="button" onclick="alertPlaceholder('ประวัติการส่งเอกสาร')">
+          <div class="title">ประวัติการส่งเอกสาร</div>
+          <div class="desc">ดูรายการเอกสาร OT ที่เคยส่งและสถานะล่าสุด</div>
+        </button>
+
+        <button class="menu-btn" type="button" onclick="alertPlaceholder('แจ้งเตือน')">
+          <div class="title">แจ้งเตือน</div>
+          <div class="desc">ดูรายการแจ้งเตือนเกี่ยวกับการอนุมัติและการแก้ไขเอกสาร</div>
+        </button>
+      </div>
+    </div>
+
+    <div id="adminSection" class="card hidden">
+      <div class="section-title">เมนูผู้ดูแลระบบ</div>
+      <div class="menu-grid">
+        <button class="menu-btn admin" type="button" onclick="goPage('task.html?mode=admin')">
+          <div class="title">จัดการคำสั่งปฏิบัติงาน</div>
+          <div class="desc">เพิ่ม แก้ไข และอัปเดตลิงก์คำสั่งรายเดือน</div>
+        </button>
+
+        <button class="menu-btn admin" type="button" onclick="goPage('download.html?mode=admin')">
+          <div class="title">จัดการดาวน์โหลดฟอร์ม</div>
+          <div class="desc">อัปเดตลิงก์แบบฟอร์มให้บุคลากรดาวน์โหลดได้ทันที</div>
+        </button>
+
+        <button class="menu-btn admin" type="button" onclick="alertPlaceholder('จัดการผู้ใช้งาน')">
+          <div class="title">จัดการผู้ใช้งาน</div>
+          <div class="desc">ตรวจสอบสิทธิ์ admin / staff และแก้ไขข้อมูลผู้ใช้งาน</div>
+        </button>
+
+        <button class="menu-btn admin" type="button" onclick="alertPlaceholder('รายงานสรุปผู้บริหาร')">
+          <div class="title">รายงานสรุปผู้บริหาร</div>
+          <div class="desc">ดูภาพรวมการใช้งานและสถานะการเบิกค่าตอบแทน</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== แก้ 2 ค่านี้ก่อนใช้งาน ======
+    const LIFF_ID = 'YOUR_LIFF_ID';
+    const API_BASE = 'YOUR_WEB_APP_URL';
+    // ====================================
+
+    function showMessage(text, ok = true) {
+      const el = document.getElementById('msg');
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
+      el.textContent = text;
+    }
+
+    function debugLog(text) {
+      const box = document.getElementById('debug');
+      box.style.display = 'block';
+      box.textContent += (box.textContent ? '\n' : '') + text;
+      console.log(text);
+    }
+
+    async function postJSON(payload) {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('API ตอบกลับไม่ใช่ JSON: ' + text);
+      }
+    }
+
+    async function getDepartmentsMap() {
+      const raw = await postJSON({ action: 'getDepartments' });
+      debugLog('getDepartments => ' + JSON.stringify(raw));
+
+      const rows = Array.isArray(raw) ? raw : (raw.data || []);
+      const map = {};
+      rows.forEach(d => {
+        const id = String(d.department_id || '').trim();
+        if (id) map[id] = d.department_name || id;
+      });
+      return map;
+    }
+
+    function applyRoleUI(roleValue) {
+      const adminSection = document.getElementById('adminSection');
+      const roleText = document.getElementById('role_text');
+      const roleBadge = document.getElementById('role_badge');
+
+      if (roleValue === 'admin') {
+        adminSection.classList.remove('hidden');
+        roleText.textContent = 'ผู้ดูแลระบบ';
+        roleBadge.textContent = 'admin';
+        roleBadge.className = 'role-badge role-admin';
+      } else {
+        adminSection.classList.add('hidden');
+        roleText.textContent = 'เจ้าหน้าที่';
+        roleBadge.textContent = 'staff';
+        roleBadge.className = 'role-badge role-staff';
+      }
+    }
+
+    async function loadUserAndRender(lineUserId, displayName) {
+      const deptMap = await getDepartmentsMap();
+      const user = await postJSON({
+        action: 'getUserByLineId',
+        line_user_id: lineUserId
+      });
+
+      debugLog('getUserByLineId => ' + JSON.stringify(user));
+
+      document.getElementById('display_name').textContent = displayName || '-';
+
+      if (!user || !user.line_user_id) {
+        document.getElementById('full_name').textContent = '-';
+        document.getElementById('department_name').textContent = '-';
+        applyRoleUI('staff');
+        showMessage('ยังไม่พบข้อมูลผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน', false);
+        setTimeout(() => {
+          window.location.href = 'register.html';
+        }, 1200);
+        return;
+      }
+
+      const roleValue = String(user.role || '').trim().toLowerCase() === 'admin' ? 'admin' : 'staff';
+
+      document.getElementById('full_name').textContent = user.full_name || '-';
+      document.getElementById('department_name').textContent = deptMap[String(user.department_id || '').trim()] || user.department_id || '-';
+
+      applyRoleUI(roleValue);
+      showMessage('โหลดข้อมูลสำเร็จ', true);
+    }
+
+    function goPage(path) {
+      window.location.href = path;
+    }
+
+    function goToRegister() {
+      window.location.href = 'register.html';
+    }
+
+    function alertPlaceholder(name) {
+      alert('เมนู "' + name + '" กำลังต่อระบบในขั้นถัดไป');
+    }
+
+    function logoutLiff() {
+      try {
+        if (window.confirm('ต้องการออกจากระบบหรือไม่')) {
+          if (liff.isLoggedIn()) {
+            liff.logout();
+          }
+          window.location.href = 'register.html';
+        }
+      } catch (err) {
+        console.error(err);
+        window.location.href = 'register.html';
+      }
+    }
+
+    async function initPage() {
+      try {
+        if (LIFF_ID === 'YOUR_LIFF_ID') {
+          showMessage('กรุณาใส่ LIFF_ID จริงก่อนใช้งาน', false);
+          return;
+        }
+        if (API_BASE === 'YOUR_WEB_APP_URL') {
+          showMessage('กรุณาใส่ Web App URL จริงก่อนใช้งาน', false);
+          return;
+        }
+
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        debugLog('LINE profile => ' + JSON.stringify(profile));
+
+        await loadUserAndRender(profile.userId, profile.displayName);
+      } catch (err) {
+        console.error(err);
+        showMessage('เริ่มต้นระบบไม่สำเร็จ: ' + (err.message || err), false);
+      }
+    }
+
+    window.addEventListener('load', initPage);
+  </script>
+</body>
+</html>
