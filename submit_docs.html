@@ -218,7 +218,7 @@
       color:#991b1b;
     }
     .debug{
-      margin-top:14px;
+      display:none;-top:14px;
       padding:12px 14px;
       border-radius:12px;
       background:#eef2ff;
@@ -358,7 +358,7 @@
         <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
       </div>
       <div id="msg" class="msg"></div>
-      <div id="debug" class="debug"></div>
+      <div id="debug" class="debug" style="display:none;"></div>
     </div>
   </div>
 
@@ -385,10 +385,13 @@
       ]
     };
 
+    const DEBUG_MODE = false;
+
     function log(msg){
-      const el = document.getElementById('debug');
-      el.innerText += msg + "\\n";
-      console.log(msg);
+      if(!DEBUG_MODE) return;
+        const el = document.getElementById('debug');
+      if(el) el.innerText += msg + "\n";
+        console.log(msg);
     }
 
     function setMessage(msg, isError=false){
