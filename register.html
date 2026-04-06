@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สมัครสมาชิก / เข้าสู่ระบบ</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px 16px 32px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "Sarabun", sans-serif; background: #f4f7fb; color: #14213d; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 22px; padding: 22px 18px; box-shadow: 0 12px 30px rgba(0,0,0,.08); border: 1px solid #e8edf3; }
+    h1 { margin: 0 0 8px; font-size: 2rem; line-height: 1.2; }
+    .sub { margin: 0 0 18px; color: #667085; font-size: 1rem; line-height: 1.6; }
+    .field { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 8px; font-size: 1.25rem; font-weight: 700; color: #101828; }
+    input, select { width: 100%; padding: 16px 18px; border: 1.5px solid #d0d5dd; border-radius: 18px; font-size: 1.2rem; background: #fff; color: #101828; outline: none; }
+    input[readonly] { background: #f9fafb; color: #344054; }
+    select { appearance: auto; -webkit-appearance: menulist; cursor: pointer; }
+    input:focus, select:focus { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(22,163,74,.12); }
+    .hint { margin-top: 6px; font-size: .95rem; color: #667085; }
+    .btn { width: 100%; padding: 18px 20px; border: none; border-radius: 18px; background: #16a34a; color: #fff; font-size: 1.5rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(22,163,74,.28); }
+    .btn:disabled { opacity: .7; cursor: wait; }
+    .msg { margin-top: 16px; padding: 14px 16px; border-radius: 16px; font-size: 1.05rem; line-height: 1.6; }
+    .msg.ok { background: #ecfdf3; color: #027a48; border: 1px solid #abefc6; }
+    .msg.err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
+    .debug { margin-top: 16px; padding: 12px 14px; border-radius: 14px; background: #f8fafc; border: 1px dashed #cbd5e1; color: #475467; font-size: .9rem; white-space: pre-wrap; word-break: break-word; display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>สมัครสมาชิก / เข้าสู่ระบบ</h1>
+      <p class="sub">กรอกข้อมูลผู้ใช้งานสำหรับระบบเบิกค่าตอบแทน OT ผ่าน LINE</p>
+
+      <div class="field">
+        <label for="line_user_id">LINE User ID</label>
+        <input id="line_user_id" type="text" readonly />
+      </div>
+
+      <div class="field">
+        <label for="display_name">ชื่อจาก LINE</label>
+        <input id="display_name" type="text" readonly />
+      </div>
+
+      <div class="field">
+        <label for="full_name">ชื่อ-สกุล</label>
+        <input id="full_name" type="text" placeholder="กรอกชื่อ-สกุล" />
+      </div>
+
+      <div class="field">
+        <label for="role">ตำแหน่งสิทธิ์ใช้งาน</label>
+        <select id="role" name="role">
+          <option value="staff">เจ้าหน้าที่</option>
+          <option value="admin">admin</option>
+        </select>
+        <div class="hint">สำหรับทดสอบสิทธิ์ผู้ดูแล ให้เลือก admin</div>
+      </div>
+
+      <div class="field">
+        <label for="department_id">หน่วยงาน / แผนก</label>
+        <select id="department_id" name="department_id">
+          <option value="">-- เลือกแผนก --</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="phone">เบอร์โทร</label>
+        <input id="phone" type="text" inputmode="numeric" placeholder="เช่น 0812345678" />
+      </div>
+
+      <div class="field">
+        <label for="email">อีเมล</label>
+        <input id="email" type="email" placeholder="example@hospital.go.th" />
+      </div>
+
+      <button id="saveBtn" class="btn" type="button" onclick="saveUser()">บันทึกข้อมูล</button>
+
+      <div id="msg"></div>
+      <div id="debug" class="debug"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = '2009688300-9LChW0zg';
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec';
+
+    function showMessage(text, ok = true) {
+      const el = document.getElementById('msg');
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
+      el.textContent = text;
+    }
+
+    function setLoading(isLoading) {
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล';
+    }
+
+    function debugLog(text) {
+      const box = document.getElementById('debug');
+      box.style.display = 'block';
+      box.textContent += (box.textContent ? '\n' : '') + text;
+      console.log(text);
+    }
+
+    function unwrapResponse(res) {
+      return res && Object.prototype.hasOwnProperty.call(res, 'data') ? res.data : res;
+    }
+
+    function jsonpRequest(params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        params.callback = callbackName;
+        const qs = new URLSearchParams(params).toString();
+        const script = document.createElement('script');
+
+        const cleanup = () => {
+          try { delete window[callbackName]; } catch (e) {}
+          if (script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('เรียก API ไม่สำเร็จ'));
+        }, 10000);
+
+        window[callbackName] = function(data) {
+          clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function() {
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error('โหลด API ไม่สำเร็จ'));
+        };
+
+        script.src = API_BASE + '?' + qs;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadDepartments() {
+      const sel = document.getElementById('department_id');
+      sel.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+      const res = await jsonpRequest({ action: 'getDepartments' });
+      debugLog('getDepartments => ' + JSON.stringify(res));
+      const rows = Array.isArray(unwrapResponse(res)) ? unwrapResponse(res) : [];
+
+      rows.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = String(d.department_id || '').trim();
+        opt.textContent = d.department_name || d.department_id || '-';
+        sel.appendChild(opt);
+      });
+    }
+
+    async function loadExistingUser(userId) {
+      const res = await jsonpRequest({
+        action: 'getUserByLineId',
+        line_user_id: userId
+      });
+
+      debugLog('getUserByLineId => ' + JSON.stringify(res));
+      const user = unwrapResponse(res);
+
+      if (user && user.line_user_id) {
+        document.getElementById('full_name').value = user.full_name || '';
+        document.getElementById('phone').value = user.phone || '';
+        document.getElementById('email').value = user.email || '';
+
+        const roleValue = String(user.role || '').trim().toLowerCase();
+        document.getElementById('role').value = roleValue === 'admin' ? 'admin' : 'staff';
+
+        const deptValue = String(user.department_id || '').trim();
+        document.getElementById('department_id').value = deptValue || '';
+      } else {
+        document.getElementById('role').value = 'staff';
+        document.getElementById('department_id').value = '';
+      }
+    }
+
+    async function saveUser() {
+      try {
+        setLoading(true);
+
+        const payload = {
+          action: 'saveUser',
+          line_user_id: document.getElementById('line_user_id').value.trim(),
+          display_name: document.getElementById('display_name').value.trim(),
+          full_name: document.getElementById('full_name').value.trim(),
+          role: document.getElementById('role').value,
+          department_id: document.getElementById('department_id').value,
+          phone: document.getElementById('phone').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          status_active: 'TRUE'
+        };
+
+        if (!payload.line_user_id) throw new Error('ไม่พบ LINE User ID');
+        if (!payload.full_name) throw new Error('กรุณากรอกชื่อ-สกุล');
+        if (!payload.department_id) throw new Error('กรุณาเลือกหน่วยงาน / แผนก');
+
+        const result = await jsonpRequest(payload);
+        debugLog('saveUser => ' + JSON.stringify(result));
+
+        if (result.ok === false) {
+          throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
+        }
+
+        showMessage(result.message || 'บันทึกข้อมูลสำเร็จ', true);
+        await loadExistingUser(payload.line_user_id);
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 700);
+
+      } catch (err) {
+        console.error(err);
+        showMessage(err.message || 'เกิดข้อผิดพลาด', false);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function initPage() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login({ redirectUri: location.href });
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        debugLog('LINE profile => ' + JSON.stringify(profile));
+
+        document.getElementById('line_user_id').value = profile.userId || '';
+        document.getElementById('display_name').value = profile.displayName || '';
+
+        await loadDepartments();
+        await loadExistingUser(profile.userId);
+      } catch (err) {
+        console.error(err);
+        showMessage('เริ่มต้นระบบไม่สำเร็จ: ' + (err.message || err), false);
+      }
+    }
+
+    window.addEventListener('load', initPage);
+  </script>
+</body>
+</html>
