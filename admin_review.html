@@ -14,7 +14,7 @@
     .card{background:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin-bottom:16px;}
     .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:16px;white-space:pre-wrap;display:none;}
     .msg.error{background:#fef2f2;color:#991b1b;}
-    .debug{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+    .debug{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
     .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
     .btn{border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:800;cursor:pointer;}
     .btn-secondary{background:#e5e7eb;color:#111827;}
@@ -47,7 +47,7 @@
         <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
       </div>
       <div id="msg" class="msg"></div>
-      <div id="debug" class="debug"></div>
+      <div id="debug" class="debug" style="display:none;"></div>
     </div>
 
     <div class="card">
@@ -60,11 +60,14 @@
     const LIFF_ID = "2009688300-9LChW0zg";
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
+    const DEBUG_MODE = false;
+
     function log(msg){
-      const el = document.getElementById('debug');
-      el.innerText += msg + "\\n";
-      console.log(msg);
-    }
+      if(!DEBUG_MODE) return;
+        const el = document.getElementById('debug');
+      if(el) el.innerText += msg + "\n";
+        console.log(msg);
+      }
 
     function setMessage(msg, isError=false){
       const el = document.getElementById('msg');
