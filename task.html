@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คำสั่งปฏิบัติงาน</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Sarabun',Arial,sans-serif;
+      background:#f4f7fb;
+      color:#1d2a35;
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:20px;
+    }
+    .card{
+      background:#fff;
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0 0 6px;
+      color:#0a8f2f;
+      font-size:28px;
+    }
+    .sub{color:#5d6b78;margin-bottom:8px}
+    .badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      background:#eaf7ee;
+      color:#0a8f2f;
+      margin:4px 6px 0 0;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .panel{
+      border:1px solid #e5eaf0;
+      border-radius:16px;
+      padding:18px;
+      background:#fcfdff;
+    }
+    .panel h2{
+      margin:0 0 8px;
+      font-size:20px;
+      color:#144a8b;
+    }
+    .note{
+      font-size:14px;
+      color:#62707c;
+      margin-bottom:14px;
+      line-height:1.6;
+    }
+    label{display:block;font-weight:700;margin:10px 0 6px}
+    input, textarea, select{
+      width:100%;
+      border:1px solid #cfd8e3;
+      border-radius:12px;
+      padding:12px;
+      font-size:15px;
+      font-family:inherit;
+    }
+    textarea{min-height:88px;resize:vertical}
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    .btn-primary{background:#0a8f2f;color:#fff}
+    .btn-primary:hover{filter:brightness(.96)}
+    .btn-light{background:#eef3f8;color:#234}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .hidden{display:none!important}
+    .list{display:grid;gap:12px;margin-top:12px}
+    .item{
+      border:1px solid #e4e9ef;
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+    }
+    .item-title{font-weight:700;font-size:17px;margin-bottom:6px}
+    .meta{font-size:13px;color:#6b7785;margin-bottom:8px}
+    .desc{font-size:14px;color:#344250;line-height:1.6;margin-bottom:10px;white-space:pre-wrap}
+    .link-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:#144a8b;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:700;
+      font-size:14px;
+      margin-right:8px;
+      margin-top:6px;
+    }
+    .empty{
+      padding:14px;
+      border:1px dashed #cfd8e3;
+      border-radius:12px;
+      color:#6b7785;
+      text-align:center;
+      background:#fafcff;
+    }
+    .alert{
+      padding:12px 14px;
+      border-radius:12px;
+      margin-top:12px;
+      font-size:14px;
+      line-height:1.6;
+    }
+    .ok{background:#eaf7ee;color:#175c2c}
+    .warn{background:#fff6db;color:#7c5a00}
+    .error{background:#fdecec;color:#8b1e1e}
+    .debug{
+      margin-top:16px;
+      background:#101820;
+      color:#bfe8ff;
+      border-radius:12px;
+      padding:12px;
+      font-size:12px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-height:240px;
+      overflow:auto;
+    }
+    @media (max-width: 768px){
+      .grid{grid-template-columns:1fr}
+      h1{font-size:24px}
+      .wrap{padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>คำสั่งปฏิบัติงาน</h1>
+      <div class="sub">แยกคำสั่งสำหรับผู้เบิกจากกระทรวงสาธารณสุข และกระทรวงการคลัง</div>
+      <div>
+        <span class="badge" id="badgeUser">กำลังโหลดผู้ใช้งาน...</span>
+        <span class="badge" id="badgeRole">กำลังตรวจสอบสิทธิ์...</span>
+      </div>
+      <div id="msg"></div>
+    </div>
+
+    <div class="card hidden" id="adminPanel">
+      <h1 style="font-size:24px;margin-bottom:12px">เพิ่ม / แก้ไขลิงก์คำสั่งปฏิบัติงาน</h1>
+      <div class="note">ส่วนนี้แสดงเฉพาะ admin เพื่อวางลิงก์ไฟล์ Google Drive หรือไฟล์เอกสารล่าสุดที่ต้องให้เจ้าหน้าที่ดาวน์โหลดไปแนบเอกสารการเบิก</div>
+      <div class="grid">
+        <div class="panel">
+          <h2>คำสั่งสำหรับกระทรวงสาธารณสุข</h2>
+          <label>ชื่อเอกสาร</label>
+          <input id="moph_title" placeholder="เช่น คำสั่งปฏิบัติงาน เดือนเมษายน 2569" />
+          <label>รายละเอียด</label>
+          <textarea id="moph_desc" placeholder="ระบุหมายเหตุเพิ่มเติม"></textarea>
+          <label>ลิงก์ไฟล์ / Google Drive</label>
+          <input id="moph_url" placeholder="https://..." />
+          <label>เดือนที่ใช้</label>
+          <input id="moph_month" placeholder="เช่น เมษายน 2569" />
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="saveTaskLink('MOPH')">บันทึกคำสั่ง สธ.</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>คำสั่งสำหรับกระทรวงการคลัง</h2>
+          <label>ชื่อเอกสาร</label>
+          <input id="mof_title" placeholder="เช่น คำสั่งปฏิบัติงาน เดือนเมษายน 2569" />
+          <label>รายละเอียด</label>
+          <textarea id="mof_desc" placeholder="ระบุหมายเหตุเพิ่มเติม"></textarea>
+          <label>ลิงก์ไฟล์ / Google Drive</label>
+          <input id="mof_url" placeholder="https://..." />
+          <label>เดือนที่ใช้</label>
+          <input id="mof_month" placeholder="เช่น เมษายน 2569" />
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="saveTaskLink('MOF')">บันทึกคำสั่ง การคลัง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="panel" style="border:none;padding:0;background:transparent">
+          <h2>กระทรวงสาธารณสุข</h2>
+          <div class="note">เจ้าหน้าที่ที่เบิกในสังกัดกระทรวงสาธารณสุข ดาวน์โหลดคำสั่งล่าสุดจากส่วนนี้</div>
+          <div id="mophList" class="list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="panel" style="border:none;padding:0;background:transparent">
+          <h2>กระทรวงการคลัง</h2>
+          <div class="note">เจ้าหน้าที่ที่เบิกจากกระทรวงการคลัง ดาวน์โหลดคำสั่งล่าสุดจากส่วนนี้</div>
+          <div id="mofList" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-light" onclick="location.reload()">โหลดข้อมูลใหม่</button>
+      <div id="debug" class="debug"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = '2009688300-9LChW0zg';
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec';
+
+    let currentUser = null;
+
+    function log(msg){
+      const el = document.getElementById('debug');
+      const line = `[${new Date().toLocaleString('th-TH')}] ${msg}`;
+      el.textContent += line + '\n';
+      console.log(msg);
+    }
+
+    function showMsg(text, type='ok'){
+      document.getElementById('msg').innerHTML = `<div class="alert ${type}">${text}</div>`;
+    }
+
+    function escapeHtml(text=''){
+      return String(text)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+        const script = document.createElement('script');
+        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error('JSONP timeout'));
+        },12000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          if(script.parentNode) script.parentNode.removeChild(script);
+          delete window[cb];
+        }
+
+        window[cb] = function(data){ cleanup(); resolve(data); };
+        script.onerror = function(){ cleanup(); reject(new Error('JSONP failed')); };
+        script.src = src;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function initPage(){
+      try{
+        log('เริ่มต้น task.html');
+        await liff.init({ liffId: LIFF_ID });
+        log('liff.init สำเร็จ');
+
+        if(!liff.isLoggedIn()){
+          if(liff.isInClient()){
+            liff.login({ redirectUri: location.href });
+            return;
+          }
+          showMsg('กรุณาเปิดหน้านี้ผ่าน LINE เพื่อระบุตัวตนผู้ใช้งาน', 'warn');
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        document.getElementById('badgeUser').textContent = profile.displayName || 'ไม่พบชื่อผู้ใช้';
+
+        const userRes = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(profile.userId));
+        currentUser = userRes.data || null;
+
+        if(!currentUser){
+          document.getElementById('badgeRole').textContent = 'ยังไม่ได้ลงทะเบียน';
+          showMsg('ไม่พบข้อมูลผู้ใช้งาน กรุณากลับไปลงทะเบียนก่อน', 'error');
+          await loadTaskLinks();
+          return;
+        }
+
+        const roleText = `${currentUser.role || '-'} | ${currentUser.department_name || currentUser.department_id || '-'}`;
+        document.getElementById('badgeRole').textContent = roleText;
+
+        if(isAdmin(currentUser)){
+          document.getElementById('adminPanel').classList.remove('hidden');
+          showMsg('คุณเป็นผู้ดูแลระบบ สามารถเพิ่มหรือแก้ไขลิงก์คำสั่งปฏิบัติงานได้', 'ok');
+        }else{
+          showMsg('คุณสามารถดูและดาวน์โหลดเอกสารได้ หากต้องการแก้ไขลิงก์ให้ใช้บัญชี admin', 'warn');
+        }
+
+        await loadTaskLinks();
+      }catch(err){
+        log('ERROR initPage: ' + (err.message || err));
+        showMsg('เกิดข้อผิดพลาด: ' + escapeHtml(err.message || String(err)), 'error');
+      }
+    }
+
+    function isAdmin(user){
+      if(!user) return false;
+      const role = String(user.role || '').toLowerCase();
+      return role === 'admin';
+    }
+
+    async function loadTaskLinks(){
+      try{
+        const res = await jsonp(API_BASE + '?action=getTaskLinks');
+        const rows = Array.isArray(res.data) ? res.data : [];
+        renderList('mophList', rows.filter(r => (r.target_group || '').toUpperCase() === 'MOPH'));
+        renderList('mofList', rows.filter(r => (r.target_group || '').toUpperCase() === 'MOF'));
+        fillAdminForm(rows);
+        log('โหลด task links สำเร็จ จำนวน ' + rows.length + ' รายการ');
+      }catch(err){
+        log('ERROR loadTaskLinks: ' + (err.message || err));
+      }
+    }
+
+    function fillAdminForm(rows){
+      const moph = rows.find(r => (r.target_group || '').toUpperCase() === 'MOPH' && String(r.status_active).toUpperCase() === 'TRUE');
+      const mof = rows.find(r => (r.target_group || '').toUpperCase() === 'MOF' && String(r.status_active).toUpperCase() === 'TRUE');
+      if(moph){
+        document.getElementById('moph_title').value = moph.title || '';
+        document.getElementById('moph_desc').value = moph.description || '';
+        document.getElementById('moph_url').value = moph.file_url || '';
+        document.getElementById('moph_month').value = moph.doc_month || '';
+      }
+      if(mof){
+        document.getElementById('mof_title').value = mof.title || '';
+        document.getElementById('mof_desc').value = mof.description || '';
+        document.getElementById('mof_url').value = mof.file_url || '';
+        document.getElementById('mof_month').value = mof.doc_month || '';
+      }
+    }
+
+    function renderList(targetId, rows){
+      const el = document.getElementById(targetId);
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">ยังไม่มีเอกสารในหมวดนี้</div>';
+        return;
+      }
+
+      el.innerHTML = rows.map(row => `
+        <div class="item">
+          <div class="item-title">${escapeHtml(row.title || '-')}</div>
+          <div class="meta">เดือนเอกสาร: ${escapeHtml(row.doc_month || '-')} | อัปเดตล่าสุด: ${escapeHtml(row.updated_at || row.created_at || '-')}</div>
+          <div class="desc">${escapeHtml(row.description || 'ไม่มีรายละเอียดเพิ่มเติม')}</div>
+          <a class="link-btn" href="${escapeHtml(row.file_url || '#')}" target="_blank" rel="noopener">เปิด / ดาวน์โหลดเอกสาร</a>
+        </div>
+      `).join('');
+    }
+
+    async function saveTaskLink(targetGroup){
+      if(!currentUser || !isAdmin(currentUser)){
+        showMsg('ไม่มีสิทธิ์บันทึกข้อมูล', 'error');
+        return;
+      }
+
+      const map = {
+        MOPH: {
+          title: document.getElementById('moph_title').value.trim(),
+          description: document.getElementById('moph_desc').value.trim(),
+          file_url: document.getElementById('moph_url').value.trim(),
+          doc_month: document.getElementById('moph_month').value.trim()
+        },
+        MOF: {
+          title: document.getElementById('mof_title').value.trim(),
+          description: document.getElementById('mof_desc').value.trim(),
+          file_url: document.getElementById('mof_url').value.trim(),
+          doc_month: document.getElementById('mof_month').value.trim()
+        }
+      };
+
+      const data = map[targetGroup];
+      if(!data.title || !data.file_url){
+        showMsg('กรุณากรอกชื่อเอกสารและลิงก์ไฟล์ให้ครบ', 'warn');
+        return;
+      }
+
+      try{
+        const payload = {
+          action: 'saveTaskLink',
+          data: {
+            target_group: targetGroup,
+            title: data.title,
+            description: data.description,
+            file_url: data.file_url,
+            doc_month: data.doc_month,
+            updated_by: currentUser.line_user_id || ''
+          }
+        };
+
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        showMsg(result.message || 'บันทึกเรียบร้อย', result.ok ? 'ok' : 'error');
+        log('saveTaskLink result: ' + JSON.stringify(result));
+        await loadTaskLinks();
+      }catch(err){
+        log('ERROR saveTaskLink: ' + (err.message || err));
+        showMsg('บันทึกไม่สำเร็จ: ' + escapeHtml(err.message || String(err)), 'error');
+      }
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
