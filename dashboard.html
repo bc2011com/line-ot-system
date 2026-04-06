@@ -366,7 +366,16 @@
           return;
         }
 
-        const user = res.data;
+        const user = res.data
+
+        // แสดงข้อมูล user
+        document.getElementById('full_name').innerText = user.full_name || '-';
+
+        // แสดงปุ่ม admin
+        if(user.role === 'finance' || user.role === 'admin'){
+          const btn = document.getElementById('adminReviewBtn');
+          if(btn) btn.style.display = 'block';
+        }
         document.getElementById('full_name').innerText = user.full_name || '-';
         document.getElementById('role').innerText = roleText(user.role);
         document.getElementById('department_name').innerText = user.department_name || user.department_id || '-';
@@ -380,9 +389,7 @@
 
     initPage();
     
-    if(user.role === 'finance' || user.role === 'admin'){
-      document.getElementById('adminReviewBtn').style.display = 'block';
-      }
+
     
   </script>
 </body>
