@@ -175,27 +175,51 @@
       renderList(res && res.data ? res.data : []);
     }
 
-    async function initPage(){
-      try{
-        setMessage('กำลังเชื่อมต่อ LINE...');
-        await liff.init({ liffId: LIFF_ID });
+  async function initPage(){
+  try{
+    await liff.init({ liffId: LIFF_ID });
 
-        if(!liff.isLoggedIn()){
-          liff.login({ redirectUri: location.href });
-          return;
-        }
+    const profile = await liff.getProfile();
+    const lineUserId = profile.userId || '';
 
-        const profile = await liff.getProfile();
-        document.getElementById('reviewer_name').innerHTML = '<b>ผู้ตรวจ:</b> ' + (profile.displayName || '-');
-        document.getElementById('reviewer_name').dataset.name = profile.displayName || '';
+    // 🔥 ดึงข้อมูล user จากระบบ
+    const userRes = await jsonp(
+      API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId)
+    );
 
-        await loadReports();
-        setMessage('');
-      }catch(err){
-        log('ERROR initPage: ' + (err.message || err));
-        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\\n' + (err.message || err), true);
-      }
+    if(!(userRes && userRes.data)){
+      setMessage('ยังไม่พบข้อมูลผู้ใช้', true);
+      return;
     }
+
+    const user = userRes.data;
+
+    // 🔥 เช็กสิทธิ์ตรงนี้ !!!
+    if(user.role !== 'finance' && user.role !== 'admin'){
+      setMessage('คุณไม่มีสิทธิ์เข้าหน้านี้', true);
+
+      // ซ่อนรายการทั้งหมด
+      const el = document.getElementById('list');
+      if(el) el.innerHTML = '';
+
+      return;
+    }
+
+    // แสดงชื่อผู้ตรวจ
+    document.getElementById('reviewer_name').innerHTML =
+      '<b>ผู้ตรวจ:</b> ' + (user.full_name || profile.displayName || '-');
+
+    document.getElementById('reviewer_name').dataset.name =
+      user.full_name || profile.displayName || '';
+
+    // ✅ โหลดรายการ (เฉพาะคนที่ผ่านสิทธิ์แล้ว)
+    await loadReports();
+
+  }catch(err){
+    log('ERROR initPage: ' + err.message);
+    setMessage('โหลดข้อมูลไม่สำเร็จ', true);
+  }
+}
 
     initPage();
   </script>
