@@ -70,7 +70,7 @@
       background:#fdeeee;
       color:#9a1d1d;
     }
-    .debug{
+    .debug{display:none;
       margin-top:18px;
       padding:12px;
       border-radius:10px;
@@ -117,18 +117,21 @@
     <button id="saveBtn" type="button" onclick="submitForm()">บันทึกข้อมูล</button>
 
     <div id="msg"></div>
-    <div id="debug" class="debug"></div>
+    <div id="debug" class="debug" style="display:none;"></div>
   </div>
 
   <script>
     const LIFF_ID = "2009688300-9LChW0zg";
     const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
 
-    function log(msg){
-      const box = document.getElementById('debug');
-      box.innerText += msg + "\n";
-      console.log(msg);
-    }
+const DEBUG_MODE = false;
+
+function log(msg){
+  if(!DEBUG_MODE) return;
+  const el = document.getElementById('debug');
+  if(el) el.innerText += msg + "\n";
+  console.log(msg);
+}
 
     function setMessage(text, isError = false){
       const el = document.getElementById('msg');
