@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ตรวจสอบเอกสารโดยเจ้าหน้าที่</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{margin:0;font-family:'Sarabun',system-ui,sans-serif;background:#f4f7fb;color:#111827;}
+    .topbar{background:linear-gradient(135deg,#0a8f2f,#16a34a);color:#fff;padding:24px 18px 30px;border-bottom-left-radius:26px;border-bottom-right-radius:26px;box-shadow:0 8px 24px rgba(10,143,47,.22);}
+    .title{margin:0 0 6px;font-size:30px;font-weight:800;}
+    .subtitle{margin:0;font-size:16px;opacity:.95;}
+    .wrap{max-width:1080px;margin:0 auto;padding:18px;}
+    .card{background:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin-bottom:16px;}
+    .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:16px;white-space:pre-wrap;display:none;}
+    .msg.error{background:#fef2f2;color:#991b1b;}
+    .debug{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+    .btn{border:none;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:800;cursor:pointer;}
+    .btn-secondary{background:#e5e7eb;color:#111827;}
+    .report{border:1px solid #e5e7eb;border-radius:18px;padding:16px;margin-bottom:16px;background:#f8fafc;}
+    .head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+    .rid{font-size:20px;font-weight:800;}
+    .status{padding:6px 10px;border-radius:999px;font-size:14px;font-weight:800;background:#fef3c7;color:#92400e;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;}
+    .box{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:12px;}
+    .label{font-size:13px;color:#6b7280;margin-bottom:4px;}
+    .value{font-size:16px;font-weight:700;word-break:break-word;}
+    textarea{width:100%;box-sizing:border-box;margin-top:12px;min-height:90px;padding:12px;border:1px solid #d1d5db;border-radius:12px;font-size:15px;}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+    .btn-approve{background:#16a34a;color:#fff;}
+    .btn-reject{background:#dc2626;color:#fff;}
+    .btn-pending{background:#f59e0b;color:#fff;}
+    @media (max-width:760px){.grid{grid-template-columns:1fr;}.title{font-size:24px;}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">ตรวจสอบเอกสารโดยเจ้าหน้าที่</div>
+    <p class="subtitle">สำหรับเจ้าหน้าที่การเงิน / ผู้ตรวจเอกสาร</p>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div id="reviewer_name"><b>ผู้ตรวจ:</b> -</div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
+      </div>
+      <div id="msg" class="msg"></div>
+      <div id="debug" class="debug"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">รายการเอกสารทั้งหมด</h2>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxDMJBPRM2Mq99sb3qEo-lqVGU-867_SZ0ERoZ12cgc3QaJyWR1PiqluMit05D4-Qujow/exec";
+
+    function log(msg){
+      const el = document.getElementById('debug');
+      el.innerText += msg + "\\n";
+      console.log(msg);
+    }
+
+    function setMessage(msg, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = msg ? 'block' : 'none';
+      el.className = isError ? 'msg error' : 'msg';
+      el.innerText = msg || '';
+    }
+
+    function jsonp(url){
+      return new Promise((resolve,reject)=>{
+        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+        const script = document.createElement('script');
+        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+        const timer = setTimeout(()=>{ cleanup(); reject(new Error('JSONP timeout')); },10000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          if(script.parentNode) script.parentNode.removeChild(script);
+          try{ delete window[cb]; }catch(e){}
+        }
+
+        window[cb] = function(data){ cleanup(); resolve(data); };
+        script.onerror = function(){ cleanup(); reject(new Error('JSONP failed')); };
+        script.src = src;
+        document.body.appendChild(script);
+      });
+    }
+
+    function goDashboard(){
+      location.href = 'dashboard.html';
+    }
+
+    function docsText(r){
+      const docs = [];
+      if(r.doc_schedule === 'Y') docs.push('ข้อ 1');
+      if(r.doc_claim === 'Y') docs.push('ข้อ 2');
+      if(r.doc_sign === 'Y') docs.push('ข้อ 3');
+      if(r.doc_summary === 'Y') docs.push('ข้อ 4');
+      if(r.doc_overtime_request === 'Y') docs.push('ข้อ 5');
+      if(r.doc_memo_claim === 'Y') docs.push('ข้อ 6');
+      if(r.doc_shift_change === 'Y') docs.push('ข้อ 7');
+      return docs.join(', ') || '-';
+    }
+
+    function renderList(items){
+      const box = document.getElementById('list');
+      if(!items || !items.length){
+        box.innerHTML = '<div style="padding:18px;border:1px dashed #cbd5e1;border-radius:16px;text-align:center;color:#6b7280">ยังไม่มีรายการเอกสาร</div>';
+        return;
+      }
+
+      box.innerHTML = items.map(r => `
+        <div class="report">
+          <div class="head">
+            <div class="rid">${r.report_id || '-'}</div>
+            <div class="status">${r.review_status || r.status || 'รอตรวจสอบ'}</div>
+          </div>
+
+          <div class="grid">
+            <div class="box"><div class="label">ผู้ส่ง</div><div class="value">${r.full_name || '-'}</div></div>
+            <div class="box"><div class="label">ชื่อจาก LINE</div><div class="value">${r.display_name || '-'}</div></div>
+            <div class="box"><div class="label">หน่วยงาน</div><div class="value">${r.department_name || '-'}</div></div>
+            <div class="box"><div class="label">แหล่งเงิน</div><div class="value">${r.fund_source === 'mof' ? 'กระทรวงการคลัง' : 'กระทรวงสาธารณสุข'}</div></div>
+            <div class="box"><div class="label">วันที่/เวลาส่ง</div><div class="value">${r.submit_date || '-'} ${r.submit_time || ''}</div></div>
+            <div class="box"><div class="label">จำนวนเงิน</div><div class="value">${r.fund_source === 'mof' ? (r.amount_mof || 0) : (r.amount_moph || 0)}</div></div>
+            <div class="box" style="grid-column:1/-1"><div class="label">เอกสารที่ส่ง</div><div class="value">${docsText(r)}</div></div>
+            <div class="box" style="grid-column:1/-1"><div class="label">หมายเหตุผู้ส่ง</div><div class="value">${r.note || '-'}</div></div>
+          </div>
+
+          <textarea id="note_${r.report_id}" placeholder="หากไม่ผ่าน ให้ระบุเหตุผลและสิ่งที่ต้องแก้ไข เช่น เอกสารเซ็นไม่ครบ หรือคำนวณเงินผิด">${r.review_note || ''}</textarea>
+
+          <div class="actions">
+            <button class="btn btn-pending" onclick="updateStatus('${r.report_id}','รอตรวจสอบ')">รอตรวจสอบ</button>
+            <button class="btn btn-approve" onclick="updateStatus('${r.report_id}','ผ่าน')">ผ่าน</button>
+            <button class="btn btn-reject" onclick="updateStatus('${r.report_id}','ไม่ผ่าน')">ไม่ผ่าน</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateStatus(reportId, status){
+      try{
+        const reviewer = document.getElementById('reviewer_name').dataset.name || '';
+        const note = document.getElementById('note_' + reportId).value.trim();
+
+        const url = API_BASE + '?action=updateReportStatus'
+          + '&report_id=' + encodeURIComponent(reportId)
+          + '&review_status=' + encodeURIComponent(status)
+          + '&review_note=' + encodeURIComponent(note)
+          + '&reviewed_by=' + encodeURIComponent(reviewer);
+
+        const res = await jsonp(url);
+
+        if(res && res.ok){
+          setMessage('บันทึกผลตรวจเรียบร้อย');
+          await loadReports();
+        }else{
+          throw new Error((res && res.message) || 'บันทึกไม่สำเร็จ');
+        }
+      }catch(err){
+        setMessage('เกิดข้อผิดพลาด\\n' + (err.message || err), true);
+      }
+    }
+
+    async function loadReports(){
+      const res = await jsonp(API_BASE + '?action=getAllReports');
+      log('getAllReports: ' + JSON.stringify(res));
+      renderList(res && res.data ? res.data : []);
+    }
+
+    async function initPage(){
+      try{
+        setMessage('กำลังเชื่อมต่อ LINE...');
+        await liff.init({ liffId: LIFF_ID });
+
+        if(!liff.isLoggedIn()){
+          liff.login({ redirectUri: location.href });
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        document.getElementById('reviewer_name').innerHTML = '<b>ผู้ตรวจ:</b> ' + (profile.displayName || '-');
+        document.getElementById('reviewer_name').dataset.name = profile.displayName || '';
+
+        await loadReports();
+        setMessage('');
+      }catch(err){
+        log('ERROR initPage: ' + (err.message || err));
+        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\\n' + (err.message || err), true);
+      }
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
