@@ -35,6 +35,7 @@
     .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px;font-size:15px;}
     .docs{margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1;font-size:15px;line-height:1.6;}
     .empty{text-align:center;padding:26px 14px;color:#6b7280;font-size:16px;border:1px dashed #cbd5e1;border-radius:16px;background:#fff;}
+    .review-note{margin-top:10px;background:#fff;padding:12px 14px;border-radius:12px;border-left:5px solid #f59e0b;}
     @media (max-width:760px){.grid,.meta{grid-template-columns:1fr;}.title{font-size:24px;}}
   </style>
 </head>
@@ -62,7 +63,7 @@
 
     <div class="card">
       <h2>ประวัติการส่งเอกสาร</h2>
-      <p class="subhead">แสดงรายการเอกสารที่คุณส่งเข้าระบบ พร้อมสถานะล่าสุด</p>
+      <p class="subhead">แสดงรายการเอกสารที่คุณส่งเข้าระบบ พร้อมผลการตรวจของเจ้าหน้าที่</p>
       <div id="report_list" class="report-list"></div>
     </div>
   </div>
@@ -111,8 +112,8 @@
     function statusClass(status){
       const s = String(status || '').trim();
       if(s === 'รอตรวจสอบ') return 'pending';
-      if(s === 'อนุมัติแล้ว' || s === 'อนุมัติ') return 'approved';
-      if(s === 'ตีกลับ' || s === 'ไม่ผ่าน') return 'rejected';
+      if(s === 'ผ่าน' || s === 'อนุมัติ' || s === 'อนุมัติแล้ว') return 'approved';
+      if(s === 'ไม่ผ่าน' || s === 'ตีกลับ') return 'rejected';
       return 'default';
     }
 
@@ -130,6 +131,7 @@
 
     function renderReports(items){
       const box = document.getElementById('report_list');
+
       if(!items || !items.length){
         box.innerHTML = '<div class="empty">ยังไม่มีประวัติการส่งเอกสาร</div>';
         return;
@@ -137,15 +139,21 @@
 
       box.innerHTML = items.map(item => {
         const docs = docNames(item).join(', ') || '-';
-        const amount = item.fund_source === 'mof'
-          ? (item.amount_mof || 0)
-          : (item.amount_moph || 0);
+        const amount = item.fund_source === 'mof' ? (item.amount_mof || 0) : (item.amount_moph || 0);
+        const review = item.review_note ? `
+          <div class="review-note">
+            <b>ผลการตรวจ:</b> ${item.review_status || item.status || '-'}<br>
+            <b>เหตุผล / คำแนะนำ:</b> ${item.review_note || '-'}<br>
+            <b>ตรวจโดย:</b> ${item.reviewed_by || '-'}<br>
+            <b>วันที่ตรวจ:</b> ${item.reviewed_at || '-'}
+          </div>
+        ` : '';
 
         return `
           <div class="report-item">
             <div class="report-head">
               <div class="report-id">${item.report_id || '-'}</div>
-              <div class="status ${statusClass(item.status)}">${item.status || '-'}</div>
+              <div class="status ${statusClass(item.review_status || item.status)}">${item.review_status || item.status || '-'}</div>
             </div>
 
             <div class="meta">
@@ -154,22 +162,20 @@
               <div><b>แหล่งเงิน:</b> ${item.fund_source === 'mof' ? 'กระทรวงการคลัง' : 'กระทรวงสาธารณสุข'}</div>
               <div><b>จำนวนเงิน:</b> ${amount || 0}</div>
               <div><b>หน่วยงาน:</b> ${item.department_name || '-'}</div>
-              <div><b>บันทึกเมื่อ:</b> ${item.created_at || '-'}</div>
+              <div><b>เลขรายการ:</b> ${item.report_id || '-'}</div>
             </div>
 
             <div class="docs"><b>เอกสารที่ส่ง:</b> ${docs}</div>
-            <div class="docs"><b>หมายเหตุ:</b> ${item.note || '-'}</div>
-          </div>
-        `;
+            <div class="docs"><b>หมายเหตุผู้ส่ง:</b> ${item.note || '-'}</div>
+            ${review}
+          </div>`;
       }).join('');
     }
 
     async function initPage(){
       try{
         setMessage('กำลังเชื่อมต่อ LINE...');
-        log('เริ่ม liff.init()');
-        await liff.init({ liffId:2009688300-9LChW0zg });
-        log('liff.init สำเร็จ');
+        await liff.init({ liffId: LIFF_ID });
 
         if(!liff.isLoggedIn()){
           liff.login({ redirectUri: location.href });
@@ -181,8 +187,6 @@
         document.getElementById('line_user_id').value = lineUserId;
 
         const userRes = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
-        log('getUserByLineId response: ' + JSON.stringify(userRes));
-
         if(!(userRes && userRes.data)){
           setMessage('ยังไม่พบข้อมูลผู้ใช้ กรุณาสมัครสมาชิกก่อน', true);
           setTimeout(() => { location.href = 'register_fixed.html'; }, 1200);
