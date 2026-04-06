@@ -10,24 +10,24 @@
       margin:0;
       font-family:'Sarabun',system-ui,sans-serif;
       background:#f4f7fb;
-      color:#1f2937;
+      color:#111827;
     }
     .topbar{
       background:linear-gradient(135deg,#0a8f2f,#16a34a);
       color:#fff;
-      padding:24px 18px 28px;
+      padding:24px 18px 30px;
       border-bottom-left-radius:26px;
       border-bottom-right-radius:26px;
-      box-shadow:0 8px 24px rgba(10,143,47,.2);
+      box-shadow:0 8px 24px rgba(10,143,47,.22);
     }
     .title{
-      font-size:28px;
-      font-weight:800;
       margin:0 0 6px;
+      font-size:30px;
+      font-weight:800;
     }
     .subtitle{
-      font-size:16px;
       margin:0;
+      font-size:16px;
       opacity:.95;
     }
     .wrap{
@@ -37,82 +37,92 @@
     }
     .card{
       background:#fff;
-      border-radius:20px;
+      border-radius:22px;
       padding:18px;
       box-shadow:0 8px 24px rgba(0,0,0,.06);
       margin-bottom:16px;
     }
-    .profile-grid{
+    h2{
+      margin:0 0 12px;
+      font-size:24px;
+    }
+    .subhead{
+      margin:0 0 10px;
+      color:#4b5563;
+      line-height:1.6;
+    }
+    .grid{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px;
+      gap:14px;
     }
-    .field{
+    .info-box{
       background:#f8fafc;
       border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding:12px;
+      border-radius:16px;
+      padding:14px;
     }
-    .field label{
+    .label{
       display:block;
-      font-size:13px;
+      font-size:14px;
       color:#6b7280;
       margin-bottom:6px;
     }
     .value{
-      font-size:17px;
-      font-weight:700;
+      font-size:24px;
+      font-weight:800;
+      color:#0f172a;
       word-break:break-word;
-    }
-    .status{
-      margin-top:14px;
-      background:#eef6ff;
-      color:#1e3a8a;
-      border-radius:14px;
-      padding:12px;
-      font-size:14px;
     }
     .menu-grid{
       display:grid;
-      grid-template-columns:repeat(2,1fr);
+      grid-template-columns:1fr 1fr;
       gap:14px;
-      margin-top:8px;
+      margin-top:10px;
     }
     .menu-btn{
-      display:flex;
-      min-height:132px;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      gap:8px;
+      display:block;
+      text-decoration:none;
+      color:#111827;
       background:#fff;
       border:1px solid #e5e7eb;
-      border-radius:20px;
+      border-radius:24px;
+      padding:28px 18px;
+      text-align:center;
       box-shadow:0 6px 18px rgba(0,0,0,.05);
-      text-decoration:none;
-      color:#0f172a;
-      font-weight:800;
+      transition:.18s ease;
       cursor:pointer;
     }
-    .menu-btn .icon{
-      font-size:36px;
+    .menu-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 22px rgba(0,0,0,.08);
     }
-    .menu-btn small{
-      color:#4b5563;
-      font-size:14px;
-      font-weight:600;
+    .icon{
+      font-size:64px;
+      line-height:1;
+      margin-bottom:14px;
+    }
+    .menu-title{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+    .menu-sub{
+      font-size:16px;
+      color:#6b7280;
+      font-weight:700;
     }
     .btn-row{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:14px;
+      margin-top:16px;
     }
     .btn{
       border:none;
       border-radius:12px;
-      padding:12px 16px;
-      font-size:15px;
+      padding:14px 18px;
+      font-size:16px;
       font-weight:800;
       cursor:pointer;
     }
@@ -124,18 +134,50 @@
       background:#e5e7eb;
       color:#111827;
     }
+    .msg{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef7ee;
+      color:#166534;
+      font-size:16px;
+      line-height:1.6;
+      white-space:pre-wrap;
+      display:none;
+    }
+    .msg.error{
+      background:#fef2f2;
+      color:#991b1b;
+    }
     .debug{
       margin-top:14px;
-      background:#f3f4ff;
-      border-radius:14px;
-      padding:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef2ff;
+      color:#374151;
       font-size:12px;
       white-space:pre-wrap;
       word-break:break-word;
     }
-    @media (max-width:640px){
-      .profile-grid,.menu-grid{grid-template-columns:1fr;}
-      .title{font-size:24px;}
+    .hint{
+      font-size:14px;
+      color:#6b7280;
+      margin-top:8px;
+      line-height:1.6;
+    }
+    @media (max-width:760px){
+      .grid,.menu-grid{
+        grid-template-columns:1fr;
+      }
+      .title{
+        font-size:24px;
+      }
+      .icon{
+        font-size:56px;
+      }
+      .menu-title{
+        font-size:20px;
+      }
     }
   </style>
 </head>
@@ -147,72 +189,68 @@
 
   <div class="wrap">
     <div class="card">
-      <h2 style="margin-top:0">ข้อมูลผู้ใช้งาน</h2>
-      <div class="profile-grid">
-        <div class="field">
-          <label>ชื่อจาก LINE</label>
+      <h2>ข้อมูลผู้ใช้งาน</h2>
+      <p class="subhead">ข้อมูลนี้ดึงจาก LINE และฐานข้อมูลที่ลงทะเบียนไว้</p>
+
+      <div class="grid">
+        <div class="info-box">
+          <span class="label">ชื่อจาก LINE</span>
           <div id="display_name" class="value">-</div>
         </div>
-        <div class="field">
-          <label>ชื่อ-สกุล</label>
+        <div class="info-box">
+          <span class="label">ชื่อ-สกุล</span>
           <div id="full_name" class="value">-</div>
         </div>
-        <div class="field">
-          <label>สิทธิ์การใช้งาน</label>
+        <div class="info-box">
+          <span class="label">สิทธิการใช้งาน</span>
           <div id="role" class="value">-</div>
         </div>
-        <div class="field">
-          <label>หน่วยงาน / แผนก</label>
+        <div class="info-box">
+          <span class="label">หน่วยงาน / แผนก</span>
           <div id="department_name" class="value">-</div>
-        </div>
-        <div class="field">
-          <label>เบอร์โทร</label>
-          <div id="phone" class="value">-</div>
-        </div>
-        <div class="field">
-          <label>อีเมล</label>
-          <div id="email" class="value">-</div>
         </div>
       </div>
 
-      <div id="status" class="status">กำลังโหลดข้อมูล...</div>
-
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="openRegister()">แก้ไขข้อมูลส่วนตัว</button>
+        <button class="btn btn-secondary" onclick="logoutUser()">ออกจากระบบ</button>
         <button class="btn btn-secondary" onclick="closeLiff()">ปิดหน้าต่าง</button>
       </div>
 
+      <div id="msg" class="msg"></div>
       <div id="debug" class="debug"></div>
     </div>
 
     <div class="card">
-      <h2 style="margin-top:0">เมนูหลัก</h2>
+      <h2>เมนูหลัก</h2>
+
       <div class="menu-grid">
-        <a class="menu-btn" href="javascript:void(0)" onclick="window.location.href='task.html'">
+        <a class="menu-btn" href="javascript:void(0)" onclick="goPage('task.html')">
           <div class="icon">📣</div>
-          <div>คำสั่งปฏิบัติงาน</div>
-          <small>Task</small>
+          <div class="menu-title">คำสั่งปฏิบัติงาน</div>
+          <div class="menu-sub">Task</div>
         </a>
 
-        <a class="menu-btn" href="javascript:void(0)" onclick="window.location.href='submit_docs.html'">
+        <a class="menu-btn" href="javascript:void(0)" onclick="goPage('submit_docs.html')">
           <div class="icon">📄</div>
-          <div>ส่งเอกสาร</div>
-          <small>Submit Docs</small>
+          <div class="menu-title">ส่งเอกสาร</div>
+          <div class="menu-sub">Submit Docs</div>
         </a>
 
-        <a class="menu-btn" href="javascript:void(0)" onclick="window.location.href='history.html'">
+        <a class="menu-btn" href="javascript:void(0)" onclick="goPage('history.html')">
           <div class="icon">✅</div>
-          <div>ตรวจสอบสถานะ</div>
-          <small>Track Status</small>
+          <div class="menu-title">ตรวจสอบสถานะ</div>
+          <div class="menu-sub">Track Status</div>
         </a>
 
-        <a class="menu-btn" href="javascript:void(0)" onclick="window.location.href='download.html'">
+        <a class="menu-btn" href="javascript:void(0)" onclick="goPage('download.html')">
           <div class="icon">📁</div>
-          <div>ดาวน์โหลดฟอร์ม</div>
-          <small>Download Form</small>
+          <div class="menu-title">ดาวน์โหลดฟอร์ม</div>
+          <div class="menu-sub">Download Form</div>
         </a>
-          <small>Download Form</small>
-      </a>
+      </div>
+
+      <div class="hint">
+        ถ้าหน้า task.html หรือ download.html ยังไม่ได้สร้าง ระบบจะเปิดไม่สำเร็จเฉพาะเมนูนั้น แต่เมนูส่งเอกสารและตรวจสอบสถานะจะใช้งานได้ทันที
       </div>
     </div>
   </div>
@@ -223,12 +261,15 @@
 
     function log(msg){
       const el = document.getElementById('debug');
-      el.innerText += msg + "\n";
+      el.innerText += msg + "\\n";
       console.log(msg);
     }
 
-    function setStatus(msg){
-      document.getElementById('status').innerText = msg;
+    function setMessage(msg, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = msg ? 'block' : 'none';
+      el.className = isError ? 'msg error' : 'msg';
+      el.innerText = msg || '';
     }
 
     function jsonp(url){
@@ -236,7 +277,6 @@
         const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
         const script = document.createElement('script');
         const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-
         const timer = setTimeout(()=>{
           cleanup();
           reject(new Error('JSONP timeout'));
@@ -263,40 +303,40 @@
       });
     }
 
-    function roleLabel(role){
-      const map = {
-        staff: 'เจ้าหน้าที่',
-        department_rep: 'ผู้แทนหน่วยงาน',
-        finance: 'การเงิน',
-        admin: 'ผู้ดูแลระบบ'
-      };
-      return map[role] || role || '-';
+    function roleText(role){
+      const r = String(role || '').trim();
+      if(r === 'finance') return 'การเงิน';
+      if(r === 'staff') return 'เจ้าหน้าที่';
+      if(r === 'department_rep') return 'ตัวแทนหน่วยงาน';
+      if(r === 'admin') return 'ผู้ดูแลระบบ';
+      return r || '-';
     }
 
-    function openRegister(){
-      location.href = 'register_fixed.html';
+    function goPage(page){
+      window.location.href = page;
     }
 
     function closeLiff(){
-      if(window.liff && liff.isInClient()){
+      if (typeof liff !== 'undefined' && liff.isInClient()) {
         liff.closeWindow();
-      }else{
-        alert('สามารถปิดได้เมื่อเปิดผ่าน LINE');
+      } else {
+        window.close();
       }
     }
 
-    function comingSoon(name){
-      alert(name + ' กำลังพัฒนา');
-    }
-    function goPage(page){
-      const LIFF_ID = "2009688300-9LChW0zg";
-      window.location.href = "https://liff.line.me/" + LIFF_ID + "?path=" + encodeURIComponent(page);
+    function logoutUser(){
+      if (confirm('ต้องการออกจากระบบใช่หรือไม่')) {
+        if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
+          liff.logout();
+        }
+        window.location.href = 'home.html';
+      }
     }
 
-    
-    async function initDashboard(){
+    async function initPage(){
       try{
-        setStatus('กำลังเชื่อมต่อ LINE...');
+        setMessage('กำลังเชื่อมต่อ LINE...');
+        log('เริ่ม liff.init()');
         await liff.init({ liffId: LIFF_ID });
         log('liff.init สำเร็จ');
 
@@ -308,38 +348,32 @@
         const profile = await liff.getProfile();
         const lineUserId = profile.userId || '';
         const displayName = profile.displayName || '';
+
         document.getElementById('display_name').innerText = displayName || '-';
         log('LINE User ID: ' + lineUserId);
 
-        setStatus('กำลังโหลดข้อมูลผู้ใช้...');
         const res = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
         log('getUserByLineId response: ' + JSON.stringify(res));
 
         if(!(res && res.data)){
-          setStatus('ยังไม่พบข้อมูลผู้ใช้ กำลังไปหน้าสมัครสมาชิก...');
-          setTimeout(() => {
-            location.href = 'register_fixed.html';
-          }, 800);
+          setMessage('ยังไม่พบข้อมูลผู้ใช้ กรุณาสมัครสมาชิกก่อน', true);
+          setTimeout(() => { window.location.href = 'register_fixed.html'; }, 1200);
           return;
         }
 
         const user = res.data;
         document.getElementById('full_name').innerText = user.full_name || '-';
-        document.getElementById('role').innerText = roleLabel(user.role);
+        document.getElementById('role').innerText = roleText(user.role);
         document.getElementById('department_name').innerText = user.department_name || user.department_id || '-';
-        document.getElementById('phone').innerText = user.phone || '-';
-        document.getElementById('email').innerText = user.email || '-';
 
-        setStatus('เข้าสู่ระบบสำเร็จ');
+        setMessage('');
       }catch(err){
-        log('ERROR: ' + (err.message || err));
-        setStatus('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+        log('ERROR initPage: ' + (err.message || err));
+        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\\n' + (err.message || err), true);
       }
     }
 
-    initDashboard();
-
-    
+    initPage();
   </script>
 </body>
 </html>
