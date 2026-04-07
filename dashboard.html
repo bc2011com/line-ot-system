@@ -246,6 +246,19 @@
 </head>
 <body>
   <div class="container">
+    <button onclick="goHome()" style="
+      position:absolute;
+      top:15px;
+      left:15px;
+      background:#ffffff;
+      border:none;
+      padding:8px 12px;
+      border-radius:10px;
+      font-size:14px;
+      font-weight:bold;
+    ">
+  ← เมนูหลัก
+</button>
     <div class="hero">
       <h1>Dashboard ระบบเบิกค่าตอบแทน OT</h1>
       <p id="userInfo">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
@@ -590,6 +603,9 @@
       loadDashboard();
     }
 
+     function goHome() {
+        window.location.href = "index.html"; // หรือหน้าเมนูของคุณ
+     }  
     document.addEventListener("DOMContentLoaded", function () {
       renderUserInfo();
       loadDashboard();
