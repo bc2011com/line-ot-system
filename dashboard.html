@@ -340,13 +340,17 @@
       return url.toString();
     }
 
-    async function fetchJson(url) {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error("โหลดข้อมูลไม่สำเร็จ");
-      }
-      return await res.json();
-    }
+async function fetchJson(url) {
+  const res = await fetch(url, { method: "GET" });
+  const text = await res.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error("API response text =", text);
+    throw new Error("API ไม่ได้ส่ง JSON กลับมา");
+  }
+}
 
     function formatNumber(num) {
       return Number(num || 0).toLocaleString("th-TH");
@@ -492,24 +496,26 @@ function renderTable(rows) {
   `;
 }).join("");
 
-    async function loadDashboard() {
-      try {
-        const url = buildUrl("getDashboardSummary");
-        const data = await fetchJson(url);
+async function loadDashboard() {
+  try {
+    const url = buildUrl("getDashboardSummary");
+    console.log("Dashboard URL:", url);
 
-        if (!data.ok) {
-          alert(data.message || "โหลด Dashboard ไม่สำเร็จ");
-          return;
-        }
+    const data = await fetchJson(url);
+    console.log("Dashboard data:", data);
 
-        renderCards(data.summary || {});
-        renderCharts(data.chart || []);
-        renderTable(data.recent || []);
-      } catch (err) {
-        console.error(err);
-        alert("เกิดข้อผิดพลาดในการโหลด Dashboard");
-      }
+    if (!data.ok) {
+      throw new Error(data.message || "โหลด Dashboard ไม่สำเร็จ");
     }
+
+    renderCards(data.summary || {});
+    renderCharts(data.chart || []);
+    renderTable(data.recent || []);
+  } catch (err) {
+    console.error("โหลด dashboard ไม่สำเร็จ:", err);
+    alert("โหลด Dashboard ไม่สำเร็จ");
+  }
+}
 
     async function loadList() {
       try {
