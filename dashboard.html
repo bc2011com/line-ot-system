@@ -11,166 +11,185 @@
     body {
       margin: 0;
       font-family: "Sarabun", "Segoe UI", sans-serif;
-      background: #f4f7fb;
+      background: #f3f6fb;
       color: #1f2937;
     }
 
     .container {
-      max-width: 1300px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 20px;
     }
 
-    .topbar {
+    .hero {
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff;
-      padding: 20px;
-      border-radius: 18px;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
       margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.18);
     }
 
-    .topbar h1 {
-      margin: 0;
-      font-size: 28px;
+    .hero h1 {
+      margin: 0 0 10px 0;
+      font-size: 26px;
+      line-height: 1.35;
       font-weight: 700;
     }
 
-    .topbar p {
-      margin: 8px 0 0 0;
-      font-size: 14px;
+    .hero p {
+      margin: 0;
+      font-size: 15px;
       opacity: 0.95;
     }
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
 
     .card {
       background: #fff;
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 22px;
+      padding: 22px;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-      border: 1px solid #eef2f7;
+      border: 1px solid #edf2f7;
     }
 
     .card-title {
-      font-size: 14px;
       color: #6b7280;
+      font-size: 14px;
+      font-weight: 700;
       margin-bottom: 8px;
-      font-weight: 600;
     }
 
     .card-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #111827;
+      font-size: 34px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      word-break: break-word;
     }
 
-    .grid-2 {
+    .grid-two {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 18px;
       margin-bottom: 20px;
     }
 
     .panel {
       background: #fff;
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 22px;
+      padding: 22px;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-      border: 1px solid #eef2f7;
+      border: 1px solid #edf2f7;
+      min-height: 300px;
     }
 
-    .panel h3 {
-      margin: 0 0 12px 0;
-      font-size: 18px;
-      color: #111827;
+    .panel h3,
+    .table-panel h3 {
+      margin: 0 0 18px 0;
+      font-size: 20px;
+      color: #0f172a;
     }
 
     .table-panel {
       background: #fff;
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 22px;
+      padding: 22px;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-      border: 1px solid #eef2f7;
+      border: 1px solid #edf2f7;
+      overflow: hidden;
     }
 
-    .table-head {
+    .toolbar {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
       align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
-    .table-head h3 {
-      margin: 0;
-      font-size: 18px;
+    .toolbar select,
+    .toolbar button {
+      height: 50px;
+      border-radius: 14px;
+      font-size: 16px;
+      padding: 0 16px;
     }
 
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    select, button {
-      padding: 10px 12px;
-      font-size: 14px;
-      border-radius: 10px;
+    .toolbar select {
+      min-width: 220px;
       border: 1px solid #d1d5db;
       background: #fff;
+      color: #111827;
     }
 
-    button {
+    .toolbar button {
+      border: none;
       background: #2563eb;
       color: #fff;
-      border: none;
+      font-weight: 700;
       cursor: pointer;
-      font-weight: 600;
+      min-width: 160px;
     }
 
-    button:hover {
-      background: #1d4ed8;
+    .toolbar button.secondary {
+      background: #2563eb;
+    }
+
+    .toolbar button:hover {
+      opacity: 0.95;
     }
 
     .table-wrap {
       overflow-x: auto;
+      border-radius: 16px;
     }
 
     table {
       width: 100%;
+      min-width: 1120px;
       border-collapse: collapse;
-      min-width: 1050px;
+      background: #fff;
     }
 
     th, td {
-      padding: 12px 10px;
+      padding: 14px 12px;
       border-bottom: 1px solid #e5e7eb;
       text-align: left;
-      font-size: 14px;
       vertical-align: top;
+      font-size: 15px;
     }
 
     th {
-      background: #f9fafb;
+      background: #f8fafc;
       color: #374151;
-      font-weight: 700;
-      position: sticky;
-      top: 0;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #111827;
+    }
+
+    .small {
+      display: block;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+      line-height: 1.5;
     }
 
     .badge {
       display: inline-block;
-      padding: 6px 10px;
+      padding: 8px 14px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       white-space: nowrap;
     }
 
@@ -194,35 +213,40 @@
       color: #374151;
     }
 
-    .small {
-      color: #6b7280;
-      font-size: 12px;
-    }
-
-    .loading, .empty {
+    .empty {
       text-align: center;
-      padding: 18px;
       color: #6b7280;
+      padding: 24px;
     }
 
     @media (max-width: 900px) {
-      .grid-2 {
+      .grid-two {
         grid-template-columns: 1fr;
       }
 
-      .topbar h1 {
-        font-size: 24px;
+      .hero h1 {
+        font-size: 22px;
       }
 
       .card-value {
-        font-size: 28px;
+        font-size: 30px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar select,
+      .toolbar button {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="topbar">
+    <div class="hero">
       <h1>Dashboard ระบบเบิกค่าตอบแทน OT</h1>
       <p id="userInfo">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
     </div>
@@ -254,7 +278,7 @@
       </div>
     </div>
 
-    <div class="grid-2">
+    <div class="grid-two">
       <div class="panel">
         <h3>สรุปสถานะเอกสาร</h3>
         <canvas id="pieChart"></canvas>
@@ -266,19 +290,18 @@
     </div>
 
     <div class="table-panel">
-      <div class="table-head">
-        <h3>รายการเอกสาร</h3>
-        <div class="filters">
-          <select id="statusFilter">
-            <option value="">ทุกสถานะ</option>
-            <option value="รอตรวจสอบ">รอตรวจสอบ</option>
-            <option value="ผ่าน">ผ่าน</option>
-            <option value="ไม่ผ่าน">ไม่ผ่าน</option>
-            <option value="รอ">รอ</option>
-          </select>
-          <button onclick="loadList()">กรองข้อมูล</button>
-          <button onclick="resetFilter()">ล้างตัวกรอง</button>
-        </div>
+      <h3>รายการเอกสาร</h3>
+
+      <div class="toolbar">
+        <select id="statusFilter">
+          <option value="">ทุกสถานะ</option>
+          <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+          <option value="รอ">รอ</option>
+          <option value="ผ่าน">ผ่าน</option>
+          <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+        </select>
+        <button type="button" onclick="loadList()">กรองข้อมูล</button>
+        <button type="button" class="secondary" onclick="resetFilter()">ล้างตัวกรอง</button>
       </div>
 
       <div class="table-wrap">
@@ -298,7 +321,9 @@
             </tr>
           </thead>
           <tbody id="docTableBody">
-            <tr><td colspan="10" class="loading">กำลังโหลดข้อมูล...</td></tr>
+            <tr>
+              <td colspan="10" class="empty">กำลังโหลดข้อมูล...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -306,7 +331,7 @@
   </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
+    const GAS_URL = "PUT_YOUR_EXEC_URL_HERE";
 
     let pieChartInstance = null;
     let barChartInstance = null;
@@ -326,11 +351,11 @@
       const url = new URL(GAS_URL);
 
       url.searchParams.set("action", action);
-      url.searchParams.set("role", user.role);
-      url.searchParams.set("line_user_id", user.line_user_id);
-      url.searchParams.set("department_name", user.department_name);
+      url.searchParams.set("role", user.role || "");
+      url.searchParams.set("line_user_id", user.line_user_id || "");
+      url.searchParams.set("department_name", user.department_name || "");
 
-      Object.keys(extraParams).forEach(key => {
+      Object.keys(extraParams).forEach((key) => {
         const value = extraParams[key];
         if (value !== undefined && value !== null && value !== "") {
           url.searchParams.set(key, value);
@@ -340,33 +365,37 @@
       return url.toString();
     }
 
-async function fetchJson(url) {
-  const res = await fetch(url, { method: "GET" });
-  const text = await res.text();
+    async function fetchJson(url) {
+      const res = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
 
-  try {
-    return JSON.parse(text);
-  } catch (err) {
-    console.error("API response text =", text);
-    throw new Error("API ไม่ได้ส่ง JSON กลับมา");
-  }
-}
+      const text = await res.text();
+
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        console.error("API response text:", text);
+        throw new Error("API ไม่ได้ส่ง JSON กลับมา");
+      }
+    }
 
     function formatNumber(num) {
       return Number(num || 0).toLocaleString("th-TH");
     }
 
-function renderUserInfo() {
-  const user = getUserSession();
-  const displayName = user.full_name || user.display_name || "-";
-  const role = user.role || "-";
-  const dept = user.department_name || "-";
+    function renderUserInfo() {
+      const user = getUserSession();
+      const displayName = user.full_name || user.display_name || "-";
+      const role = user.role || "-";
+      const dept = user.department_name || "-";
 
-  const el = document.getElementById("userInfo");
-  if (el) {
-    el.textContent = `ผู้ใช้งาน: ${displayName} | role: ${role} | แผนก: ${dept}`;
-  }
-}
+      const el = document.getElementById("userInfo");
+      if (el) {
+        el.textContent = `ผู้ใช้งาน: ${displayName} | role: ${role} | แผนก: ${dept}`;
+      }
+    }
 
     function renderCards(summary) {
       document.getElementById("totalCount").textContent = formatNumber(summary.total || 0);
@@ -378,25 +407,35 @@ function renderUserInfo() {
     }
 
     function renderCharts(chartData) {
-      const labels = chartData.map(item => item.label);
-      const values = chartData.map(item => item.value);
+      const pieCanvas = document.getElementById("pieChart");
+      const barCanvas = document.getElementById("barChart");
 
-      if (pieChartInstance) pieChartInstance.destroy();
-      if (barChartInstance) barChartInstance.destroy();
+      if (!pieCanvas || !barCanvas) return;
 
-      const pieCtx = document.getElementById("pieChart").getContext("2d");
-      const barCtx = document.getElementById("barChart").getContext("2d");
+      const labels = (chartData || []).map(item => item.label);
+      const values = (chartData || []).map(item => item.value);
 
-      pieChartInstance = new Chart(pieCtx, {
+      if (pieChartInstance) {
+        pieChartInstance.destroy();
+        pieChartInstance = null;
+      }
+
+      if (barChartInstance) {
+        barChartInstance.destroy();
+        barChartInstance = null;
+      }
+
+      pieChartInstance = new Chart(pieCanvas.getContext("2d"), {
         type: "pie",
         data: {
-          labels,
+          labels: labels,
           datasets: [{
             data: values
           }]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
           plugins: {
             legend: {
               position: "bottom"
@@ -405,10 +444,10 @@ function renderUserInfo() {
         }
       });
 
-      barChartInstance = new Chart(barCtx, {
+      barChartInstance = new Chart(barCanvas.getContext("2d"), {
         type: "bar",
         data: {
-          labels,
+          labels: labels,
           datasets: [{
             label: "จำนวนเอกสาร",
             data: values
@@ -416,17 +455,13 @@ function renderUserInfo() {
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
           scales: {
             y: {
               beginAtZero: true,
               ticks: {
                 precision: 0
               }
-            }
-          },
-          plugins: {
-            legend: {
-              display: true
             }
           }
         }
@@ -466,89 +501,99 @@ function renderUserInfo() {
       return `<span class="badge neutral">${s}</span>`;
     }
 
-function renderTable(rows) {
-  const tbody = document.getElementById("docTableBody");
+    function renderTable(rows) {
+      const tbody = document.getElementById("docTableBody");
 
-  if (!rows || rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty">ไม่พบข้อมูล</td></tr>`;
-    return;
-  }
+      if (!tbody) return;
 
- tbody.innerHTML = rows.map(r => {
-  const name = r.full_name || r.display_name || "-";
-  const dateTime = `${r.submit_date || "-"} ${r.submit_time || ""}`.trim();
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="empty">ไม่พบข้อมูล</td>
+          </tr>
+        `;
+        return;
+      }
 
-  const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
-    ? r.review_status
-    : r.status;
+      tbody.innerHTML = rows.map(r => {
+        const name = r.full_name || r.display_name || "-";
+        const dateTime = `${r.submit_date || "-"} ${r.submit_time || ""}`.trim();
 
-  return `
-    <tr>
-      <td>${r.report_id || "-"}</td>
-      <td>${name}</td>
-      <td>${r.department_name || "-"}</td>
-      <td>${r.fund_source || "-"}</td>
-      <td>
-        <div>${dateTime}</div>
-        <div class="small">สร้าง: ${r.created_at || "-"}</div>
-      </td>
-      <td>${formatNumber(r.amount_moph || 0)}</td>
-      <td>${formatNumber(r.amount_mof || 0)}</td>
-      <td>${getStatusBadge(r.status)}</td>
-      <td>${getReviewBadge(effectiveReviewStatus)}</td>
-      <td>${r.review_note || "-"}</td>
-    </tr>
-  `;
-}).join("");
+        const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
+          ? r.review_status
+          : r.status;
 
-async function loadDashboard() {
-  try {
-    const url = buildUrl("getDashboardSummary");
-    console.log("Dashboard URL:", url);
-
-    const data = await fetchJson(url);
-    console.log("Dashboard data:", data);
-
-    if (!data.ok) {
-      throw new Error(data.message || "โหลด Dashboard ไม่สำเร็จ");
+        return `
+          <tr>
+            <td>${r.report_id || "-"}</td>
+            <td>${name}</td>
+            <td>${r.department_name || "-"}</td>
+            <td>${r.fund_source || "-"}</td>
+            <td>
+              <div>${dateTime}</div>
+              <span class="small">สร้าง: ${r.created_at || "-"}</span>
+            </td>
+            <td>${formatNumber(r.amount_moph || 0)}</td>
+            <td>${formatNumber(r.amount_mof || 0)}</td>
+            <td>${getStatusBadge(r.status)}</td>
+            <td>${getReviewBadge(effectiveReviewStatus)}</td>
+            <td>${r.review_note || "-"}</td>
+          </tr>
+        `;
+      }).join("");
     }
 
-    renderCards(data.summary || {});
-    renderCharts(data.chart || []);
-    renderTable(data.recent || []);
-  } catch (err) {
-    console.error("โหลด dashboard ไม่สำเร็จ:", err);
-    alert("โหลด Dashboard ไม่สำเร็จ");
-  }
-}
+    async function loadDashboard() {
+      try {
+        const url = buildUrl("getDashboardSummary");
+        console.log("Dashboard URL:", url);
+
+        const data = await fetchJson(url);
+        console.log("Dashboard data:", data);
+
+        if (!data.ok) {
+          throw new Error(data.message || "โหลด Dashboard ไม่สำเร็จ");
+        }
+
+        renderCards(data.summary || {});
+        renderCharts(data.chart || []);
+        renderTable(data.recent || []);
+      } catch (err) {
+        console.error("โหลด dashboard ไม่สำเร็จ:", err);
+        alert("โหลด Dashboard ไม่สำเร็จ");
+      }
+    }
 
     async function loadList() {
       try {
-        const status = document.getElementById("statusFilter").value;
+        const status = document.getElementById("statusFilter").value || "";
         const url = buildUrl("getDashboardList", { status });
+        console.log("List URL:", url);
+
         const data = await fetchJson(url);
+        console.log("List data:", data);
 
         if (!data.ok) {
-          alert(data.message || "โหลดรายการไม่สำเร็จ");
-          return;
+          throw new Error(data.message || "โหลดรายการไม่สำเร็จ");
         }
 
         renderTable(data.rows || []);
       } catch (err) {
-        console.error(err);
-        alert("เกิดข้อผิดพลาดในการโหลดรายการ");
+        console.error("โหลดรายการไม่สำเร็จ:", err);
+        alert("โหลดรายการไม่สำเร็จ");
       }
     }
 
     function resetFilter() {
-      document.getElementById("statusFilter").value = "";
+      const select = document.getElementById("statusFilter");
+      if (select) select.value = "";
       loadDashboard();
     }
 
-document.addEventListener("DOMContentLoaded", function () {
-  renderUserInfo();
-  loadDashboard();
-});
+    document.addEventListener("DOMContentLoaded", function () {
+      renderUserInfo();
+      loadDashboard();
+    });
   </script>
 </body>
 </html>
