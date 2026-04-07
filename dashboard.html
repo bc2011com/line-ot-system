@@ -465,33 +465,32 @@ function renderTable(rows) {
     return;
   }
 
-  tbody.innerHTML = rows.map(r => {
-    const name = r.full_name || r.display_name || "-";
-    const dateTime = `${r.submit_date || "-"} ${r.submit_time || ""}`.trim();
+ tbody.innerHTML = rows.map(r => {
+  const name = r.full_name || r.display_name || "-";
+  const dateTime = `${r.submit_date || "-"} ${r.submit_time || ""}`.trim();
 
-    const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
-      ? r.review_status
-      : r.status;
+  const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
+    ? r.review_status
+    : r.status;
 
-    return `
-      <tr>
-        <td>${r.report_id || "-"}</td>
-        <td>${name}</td>
-        <td>${r.department_name || "-"}</td>
-        <td>${r.fund_source || "-"}</td>
-        <td>
-          <div>${dateTime}</div>
-          <div class="small">สร้าง: ${r.created_at || "-"}</div>
-        </td>
-        <td>${formatNumber(r.amount_moph || 0)}</td>
-        <td>${formatNumber(r.amount_mof || 0)}</td>
-        <td>${getStatusBadge(r.status)}</td>
-        <td>${getReviewBadge(effectiveReviewStatus)}</td>
-        <td>${r.review_note || "-"}</td>
-      </tr>
-    `;
-  }).join("");
-}
+  return `
+    <tr>
+      <td>${r.report_id || "-"}</td>
+      <td>${name}</td>
+      <td>${r.department_name || "-"}</td>
+      <td>${r.fund_source || "-"}</td>
+      <td>
+        <div>${dateTime}</div>
+        <div class="small">สร้าง: ${r.created_at || "-"}</div>
+      </td>
+      <td>${formatNumber(r.amount_moph || 0)}</td>
+      <td>${formatNumber(r.amount_mof || 0)}</td>
+      <td>${getStatusBadge(r.status)}</td>
+      <td>${getReviewBadge(effectiveReviewStatus)}</td>
+      <td>${r.review_note || "-"}</td>
+    </tr>
+  `;
+}).join("");
 
     async function loadDashboard() {
       try {
