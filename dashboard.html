@@ -259,6 +259,8 @@
     ">
   ← เมนูหลัก
 </button>
+    <button onclick="logout()">ออกจากระบบ</button>
+    
     <div class="hero">
       <h1>Dashboard ระบบเบิกค่าตอบแทน OT</h1>
       <p id="userInfo">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
@@ -610,6 +612,12 @@
     window.location.href = "index.html";
   }
 }  
+    function logout() {
+      if (confirm("ต้องการออกจากระบบหรือไม่?")) {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  }
     document.addEventListener("DOMContentLoaded", function () {
       renderUserInfo();
       loadDashboard();
