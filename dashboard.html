@@ -4,78 +4,126 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OT Dashboard</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: "Sarabun", "Segoe UI", sans-serif;
-      background: #f3f6fb;
+      background: linear-gradient(180deg, #eef4ff 0%, #f7faff 100%);
       color: #1f2937;
     }
 
     .container {
       max-width: 1280px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 18px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .left-actions,
+    .right-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
+    }
+
+    .btn:hover {
+      opacity: 0.96;
+      transform: translateY(-1px);
+    }
+
+    .btn-home {
+      background: #ffffff;
+      color: #1d4ed8;
+    }
+
+    .btn-refresh {
+      background: #0ea5e9;
+      color: #ffffff;
+    }
+
+    .btn-logout {
+      background: #ef4444;
+      color: #ffffff;
     }
 
     .hero {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #3b82f6 100%);
       color: #fff;
-      border-radius: 24px;
+      border-radius: 28px;
       padding: 28px 24px;
-      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 18px 30px rgba(37, 99, 235, 0.22);
       margin-bottom: 20px;
     }
 
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+    }
+
     .hero h1 {
+      position: relative;
       margin: 0 0 10px 0;
-      font-size: 26px;
+      font-size: 30px;
       line-height: 1.35;
-      font-weight: 700;
+      font-weight: 800;
+      z-index: 1;
     }
 
     .hero p {
+      position: relative;
       margin: 0;
-      font-size: 15px;
-      opacity: 0.95;
+      font-size: 16px;
+      opacity: 0.97;
+      z-index: 1;
     }
-    .hero-top {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 14px;
-}
 
-.btn-home {
-  background: #ffffff;
-  color: #1d4ed8;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-}
+    .status-chip {
+      position: relative;
+      display: inline-block;
+      margin-top: 14px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 1;
+    }
 
-.btn-home:hover {
-  opacity: 0.95;
-}
-
-@media (max-width: 900px) {
-  .btn-home {
-    width: 100%;
-    font-size: 16px;
-    padding: 12px 16px;
-  }
-
-  .hero-top {
-    margin-bottom: 16px;
-  }
-}
-    
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -119,13 +167,13 @@
       padding: 22px;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
       border: 1px solid #edf2f7;
-      min-height: 300px;
+      min-height: 320px;
     }
 
     .panel h3,
     .table-panel h3 {
       margin: 0 0 18px 0;
-      font-size: 20px;
+      font-size: 22px;
       color: #0f172a;
     }
 
@@ -171,11 +219,7 @@
     }
 
     .toolbar button.secondary {
-      background: #2563eb;
-    }
-
-    .toolbar button:hover {
-      opacity: 0.95;
+      background: #0ea5e9;
     }
 
     .table-wrap {
@@ -258,7 +302,7 @@
       }
 
       .hero h1 {
-        font-size: 22px;
+        font-size: 24px;
       }
 
       .card-value {
@@ -274,19 +318,40 @@
       .toolbar button {
         width: 100%;
       }
+
+      .top-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .left-actions,
+      .right-actions {
+        width: 100%;
+      }
+
+      .left-actions .btn,
+      .right-actions .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <button onclick="logout()">ออกจากระบบ</button>
-    
+    <div class="top-actions">
+      <div class="left-actions">
+        <button type="button" class="btn btn-home" onclick="goHome()">← กลับสู่เมนูหลัก</button>
+        <button type="button" class="btn btn-refresh" onclick="refreshDashboard()">⟳ โหลดใหม่</button>
+      </div>
+      <div class="right-actions">
+        <button type="button" class="btn btn-logout" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+
     <div class="hero">
-      <div class="hero-top">
-         <button type="button" class="btn-home" onclick="goHome()">← กลับสู่เมนูหลัก</button>
-       </div>
       <h1>Dashboard ระบบเบิกค่าตอบแทน OT</h1>
       <p id="userInfo">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
+      <div class="status-chip" id="liffStatus">กำลังเชื่อมต่อ LINE...</div>
     </div>
 
     <div class="cards">
@@ -370,9 +435,11 @@
 
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
+    const LIFF_ID = "2009688300-9LChW0zg";
 
     let pieChartInstance = null;
     let barChartInstance = null;
+    let liffReady = false;
 
     function getUserSession() {
       return {
@@ -421,6 +488,11 @@
 
     function formatNumber(num) {
       return Number(num || 0).toLocaleString("th-TH");
+    }
+
+    function setLiffStatus(text) {
+      const el = document.getElementById("liffStatus");
+      if (el) el.textContent = text;
     }
 
     function renderUserInfo() {
@@ -541,7 +613,6 @@
 
     function renderTable(rows) {
       const tbody = document.getElementById("docTableBody");
-
       if (!tbody) return;
 
       if (!rows || rows.length === 0) {
@@ -584,10 +655,7 @@
     async function loadDashboard() {
       try {
         const url = buildUrl("getDashboardSummary");
-        console.log("Dashboard URL:", url);
-
         const data = await fetchJson(url);
-        console.log("Dashboard data:", data);
 
         if (!data.ok) {
           throw new Error(data.message || "โหลด Dashboard ไม่สำเร็จ");
@@ -606,10 +674,7 @@
       try {
         const status = document.getElementById("statusFilter").value || "";
         const url = buildUrl("getDashboardList", { status });
-        console.log("List URL:", url);
-
         const data = await fetchJson(url);
-        console.log("List data:", data);
 
         if (!data.ok) {
           throw new Error(data.message || "โหลดรายการไม่สำเร็จ");
@@ -628,28 +693,73 @@
       loadDashboard();
     }
 
-async function goHome() {
-  try {
-    if (window.liff) {
+    async function initLiffSafely() {
       try {
-        if (typeof liff.isInClient === "function" && liff.isInClient()) {
-          liff.closeWindow();
+        if (!window.liff) {
+          setLiffStatus("ไม่พบ LIFF SDK");
           return;
         }
+
+        await liff.init({ liffId: LIFF_ID });
+        liffReady = true;
+
+        if (liff.isLoggedIn && !liff.isLoggedIn()) {
+          setLiffStatus("ต้องเข้าสู่ระบบ LINE");
+          return;
+        }
+
+        if (liff.isInClient && liff.isInClient()) {
+          setLiffStatus("เชื่อมต่อ LINE แล้ว • พร้อมกลับ Rich Menu");
+        } else {
+          setLiffStatus("เปิดจาก Browser • จะกลับ index.html");
+        }
       } catch (err) {
-        console.error("LIFF close error:", err);
+        console.error("LIFF init error:", err);
+        setLiffStatus("เชื่อมต่อ LINE ไม่สำเร็จ");
       }
     }
 
-    // fallback กรณีเปิดจาก browser ปกติ
-    window.location.href = "index.html";
-  } catch (e) {
-    console.error("goHome error:", e);
-    alert("ไม่สามารถกลับสู่เมนูหลักได้");
-  }
-}
-    document.addEventListener("DOMContentLoaded", function () {
+    async function goHome() {
+      try {
+        if (window.liff && liffReady && typeof liff.isInClient === "function" && liff.isInClient()) {
+          liff.closeWindow();
+          return;
+        }
+
+        window.location.href = "index.html";
+      } catch (e) {
+        console.error("goHome error:", e);
+        alert("ไม่สามารถกลับสู่เมนูหลักได้");
+      }
+    }
+
+    function refreshDashboard() {
+      loadDashboard();
+    }
+
+    function logout() {
+      if (!confirm("ต้องการออกจากระบบหรือไม่?")) return;
+
+      try {
+        localStorage.removeItem("role");
+        localStorage.removeItem("line_user_id");
+        localStorage.removeItem("department_name");
+        localStorage.removeItem("full_name");
+        localStorage.removeItem("display_name");
+
+        if (window.liff && liffReady && typeof liff.logout === "function" && !liff.isInClient()) {
+          liff.logout();
+        }
+      } catch (err) {
+        console.error("logout error:", err);
+      }
+
+      window.location.href = "index.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
       renderUserInfo();
+      await initLiffSafely();
       loadDashboard();
     });
   </script>
