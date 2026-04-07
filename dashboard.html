@@ -356,12 +356,17 @@ async function fetchJson(url) {
       return Number(num || 0).toLocaleString("th-TH");
     }
 
-    function renderUserInfo() {
-      const user = getUserSession();
-      const displayName = user.full_name || user.display_name || "-";
-      document.getElementById("userInfo").textContent =
-        `ผู้ใช้งาน: ${displayName} | role: ${user.role} | แผนก: ${user.department_name || "-"}`;
-    }
+function renderUserInfo() {
+  const user = getUserSession();
+  const displayName = user.full_name || user.display_name || "-";
+  const role = user.role || "-";
+  const dept = user.department_name || "-";
+
+  const el = document.getElementById("userInfo");
+  if (el) {
+    el.textContent = `ผู้ใช้งาน: ${displayName} | role: ${role} | แผนก: ${dept}`;
+  }
+}
 
     function renderCards(summary) {
       document.getElementById("totalCount").textContent = formatNumber(summary.total || 0);
