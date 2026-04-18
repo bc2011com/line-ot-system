@@ -84,13 +84,34 @@
       margin-top: 18px;
       text-align: left;
       background: #fafafa;
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: 18px;
+      padding: 16px;
       border: 1px solid #e5e7eb;
+    }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    .toolbar select, .toolbar input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #fff;
+      color: #111827;
+      outline: none;
+    }
+    .toolbar select:focus, .toolbar input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22,163,74,.12);
     }
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin-top: 12px;
       margin-bottom: 14px;
@@ -154,11 +175,54 @@
     #debug, .debug {
       display: none !important;
     }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+    .meta-item {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .meta-item .meta-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .meta-item .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+      word-break: break-word;
+    }
+    .section-title {
+      margin-top: 14px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .empty-state {
+      text-align: center;
+      color: #6b7280;
+      background: #ffffff;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 18px 12px;
+      margin-top: 10px;
+    }
     @media (max-width: 640px) {
       .title { font-size: 20px; }
       #display { font-size: 17px; }
       #statusMessage { font-size: 15px; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .summary-card .value { font-size: 20px; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
       .btn { width: 100%; margin-right: 0; }
     }
   </style>
@@ -280,6 +344,36 @@
       return `<span class="status-pill ${getStatusClass(value)}">${safe}</span>`;
     }
 
+    function formatThaiShortDate(dateStr) {
+      if (!dateStr) return '-';
+
+      const d = new Date(dateStr);
+      if (!isNaN(d)) {
+        const weekday = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'][d.getDay()];
+        const month = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][d.getMonth()];
+        const day = String(d.getDate()).padStart(2, '0');
+        const hour = String(d.getHours()).padStart(2, '0');
+        const minute = String(d.getMinutes()).padStart(2, '0');
+        return `${weekday} ${month} ${day} ${hour}:${minute}`;
+      }
+
+      const text = String(dateStr).trim();
+      const match = text.match(/(?:สร้าง:\s*)?(?:\w{3}\s)?(\w{3})\s(\d{1,2})\s(\d{4}).*?(\d{1,2}):(\d{2})/i);
+      if (match) {
+        const monthMap = {
+          Jan: 'ม.ค.', Feb: 'ก.พ.', Mar: 'มี.ค.', Apr: 'เม.ย.', May: 'พ.ค.', Jun: 'มิ.ย.',
+          Jul: 'ก.ค.', Aug: 'ส.ค.', Sep: 'ก.ย.', Oct: 'ต.ค.', Nov: 'พ.ย.', Dec: 'ธ.ค.'
+        };
+        const month = monthMap[match[1].slice(0, 3)] || match[1];
+        const day = String(match[2]).padStart(2, '0');
+        const hour = String(match[4]).padStart(2, '0');
+        const minute = String(match[5]).padStart(2, '0');
+        return `${month} ${day} ${hour}:${minute}`;
+      }
+
+      return escapeHtml(text);
+    }
+
     function findColumnIndex(headers, possibleNames) {
       const normalizedHeaders = headers.map(h => normalizeKey(h));
       for (const name of possibleNames) {
@@ -305,6 +399,8 @@
       }));
     }
 
+    let allFilteredItems = [];
+
     function countStatuses(items) {
       let approved = 0;
       let rejected = 0;
@@ -323,7 +419,7 @@
 
     function renderFilteredTable(items) {
       if (!items || items.length === 0) {
-        return '<div>ยังไม่มีข้อมูล</div>';
+        return '<div class="empty-state">ยังไม่มีข้อมูลที่ตรงกับเงื่อนไข</div>';
       }
 
       let html = '<div class="table-wrap"><table><thead><tr>' +
@@ -338,7 +434,7 @@
         html += '<tr>' +
           `<td>${escapeHtml(item.full_name || '-')}</td>` +
           `<td>${escapeHtml(item.department || '-')}</td>` +
-          `<td>${escapeHtml(item.submit_date || '-')}</td>` +
+          `<td>${formatThaiShortDate(item.submit_date)}</td>` +
           `<td>${renderStatusPill(item.status || '-')}</td>` +
           `<td>${renderStatusPill(item.review_status || '-')}</td>` +
           '</tr>';
@@ -346,6 +442,54 @@
 
       html += '</tbody></table></div>';
       return html;
+    }
+
+    function buildFilterToolbar() {
+      return `
+        <div class="toolbar">
+          <select id="statusFilter" onchange="applyDashboardFilters()">
+            <option value="all">ทุกสถานะ</option>
+            <option value="approved">ผ่าน</option>
+            <option value="rejected">ไม่ผ่าน</option>
+            <option value="pending">รอตรวจสอบ</option>
+          </select>
+          <input id="searchInput" type="text" placeholder="ค้นหาชื่อหรือหน่วยงาน" oninput="applyDashboardFilters()">
+        </div>
+      `;
+    }
+
+    function applyDashboardFilters() {
+      const statusValue = (document.getElementById('statusFilter')?.value || 'all').toLowerCase();
+      const searchValue = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      const filtered = allFilteredItems.filter(item => {
+        const mergedStatus = `${item.review_status || ''} ${item.status || ''}`;
+        const statusClass = getStatusClass(mergedStatus);
+
+        const passStatus =
+          statusValue === 'all' ||
+          (statusValue === 'approved' && statusClass === 'pill-approved') ||
+          (statusValue === 'rejected' && statusClass === 'pill-rejected') ||
+          (statusValue === 'pending' && statusClass === 'pill-pending');
+
+        const textBlob = `${item.full_name || ''} ${item.department || ''}`.toLowerCase();
+        const passSearch = !searchValue || textBlob.includes(searchValue);
+
+        return passStatus && passSearch;
+      });
+
+      const counts = countStatuses(filtered);
+      const totalEl = document.getElementById('countTotal');
+      const approvedEl = document.getElementById('countApproved');
+      const rejectedEl = document.getElementById('countRejected');
+      const pendingEl = document.getElementById('countPending');
+      const tableEl = document.getElementById('reportTableWrap');
+
+      if (totalEl) totalEl.innerText = filtered.length;
+      if (approvedEl) approvedEl.innerText = counts.approved;
+      if (rejectedEl) rejectedEl.innerText = counts.rejected;
+      if (pendingEl) pendingEl.innerText = counts.pending;
+      if (tableEl) tableEl.innerHTML = renderFilteredTable(filtered);
     }
 
     async function loadBackend() {
@@ -358,37 +502,44 @@
         setText('sheetStatus', data.ok ? 'Google Sheet: พร้อมใช้งาน' : 'Google Sheet: มีปัญหา');
 
         const dataBox = document.getElementById('dataBox');
-        const filteredItems = buildFilteredRows(data.headers || [], data.latestRows || []);
-        const counts = countStatuses(filteredItems);
+        allFilteredItems = buildFilteredRows(data.headers || [], data.latestRows || []);
+        const counts = countStatuses(allFilteredItems);
 
         dataBox.style.display = 'block';
         dataBox.innerHTML = `
-          <div><b>เวลาเซิร์ฟเวอร์:</b> ${escapeHtml(String(data.serverTime || '-'))}</div>
-          <div><b>ชีต:</b> ${escapeHtml(String(data.sheetName || '-'))}</div>
-          <div><b>จำนวนรายการล่าสุด:</b> ${escapeHtml(String(filteredItems.length || 0))}</div>
-          <div><b>สถานะระบบ:</b> ${escapeHtml(String(data.message || '-'))}</div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">เวลาเซิร์ฟเวอร์</div>
+              <div class="meta-value">${escapeHtml(String(data.serverTime || '-'))}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">สถานะระบบ</div>
+              <div class="meta-value">${escapeHtml(String(data.message || '-'))}</div>
+            </div>
+          </div>
 
           <div class="summary-grid">
             <div class="summary-card">
               <div class="label">ส่งแล้วทั้งหมด</div>
-              <div class="value">${filteredItems.length}</div>
+              <div class="value" id="countTotal">${allFilteredItems.length}</div>
             </div>
             <div class="summary-card">
               <div class="label">ผ่าน</div>
-              <div class="value">${counts.approved}</div>
+              <div class="value" id="countApproved">${counts.approved}</div>
             </div>
             <div class="summary-card">
               <div class="label">ไม่ผ่าน</div>
-              <div class="value">${counts.rejected}</div>
+              <div class="value" id="countRejected">${counts.rejected}</div>
             </div>
             <div class="summary-card">
               <div class="label">รอตรวจสอบ</div>
-              <div class="value">${counts.pending}</div>
+              <div class="value" id="countPending">${counts.pending}</div>
             </div>
           </div>
 
-          <div style="margin-top:10px;"><b>รายการส่งเอกสารล่าสุด</b></div>
-          ${renderFilteredTable(filteredItems)}
+          <div class="section-title">รายการเอกสาร</div>
+          ${buildFilterToolbar()}
+          <div id="reportTableWrap">${renderFilteredTable(allFilteredItems)}</div>
         `;
       } catch (err) {
         setText('scriptStatus', 'Apps Script: มีปัญหา');
