@@ -681,6 +681,7 @@
       tbody.innerHTML = rows.map(r => {
         const name = r.full_name || r.display_name || "-";
         const submitDateText = formatThaiShortDate(r.submit_date, r.submit_time);
+        const dateTime = formatThaiShortDate(r.submit_date, r.submit_time);
         const createdAtText = formatThaiShortDate(r.created_at);
 
         const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
@@ -702,6 +703,10 @@
             <td>${getStatusBadge(r.status)}</td>
             <td>${getReviewBadge(effectiveReviewStatus)}</td>
             <td>${r.review_note || "-"}</td>
+            <td>
+                <div>${dateTime}</div>
+                <span class="small">สร้าง: ${createdAt}</span>
+            </td>
           </tr>
         `;
       }).join("");
