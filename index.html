@@ -64,6 +64,22 @@
       font-weight: 700;
     }
     .btn:active { transform: scale(0.98); }
+    .back-btn {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 9999;
+      background: #ffffff;
+      color: #0b8f2f;
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+    .back-btn:active { transform: scale(0.98); }
     .data-box {
       margin-top: 18px;
       text-align: left;
@@ -135,19 +151,20 @@
     .pill-approved { background: #dcfce7; color: #166534; }
     .pill-rejected { background: #fee2e2; color: #991b1b; }
     .pill-default { background: #e5e7eb; color: #374151; }
-    #debug { display: none !important; }
-    .debug { display: none !important; }
+    #debug, .debug {
+      display: none !important;
+    }
     @media (max-width: 640px) {
       .title { font-size: 20px; }
       #display { font-size: 17px; }
       #statusMessage { font-size: 15px; }
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .summary-card .value { font-size: 20px; }
       .btn { width: 100%; margin-right: 0; }
     }
   </style>
 </head>
 <body>
+  <button class="back-btn" type="button" onclick="goBackToRichMenu()">← เมนูหลัก</button>
   <div class="card">
     <div class="title">ระบบเบิกค่าตอบแทน<br>รพ.ศีขรภูมิ</div>
 
@@ -234,6 +251,16 @@
 
     function manualLogin() {
       liff.login({ redirectUri: location.href });
+    }
+
+    function goBackToRichMenu() {
+      try {
+        if (window.liff && liff.isInClient()) {
+          liff.closeWindow();
+          return;
+        }
+      } catch (err) {}
+      history.back();
     }
 
     function normalizeKey(value) {
@@ -324,7 +351,7 @@
     async function loadBackend() {
       try {
         setText('scriptStatus', 'Apps Script: กำลังตรวจสอบ');
-        const ping = await jsonp(API_BASE + '?action=ping');
+        await jsonp(API_BASE + '?action=ping');
         setText('scriptStatus', 'Apps Script: ทำงานแล้ว');
 
         const data = await jsonp(API_BASE + '?action=getData');
