@@ -611,6 +611,40 @@
       return `<span class="badge neutral">${s}</span>`;
     }
 
+    function formatThaiShortDate(dateValue, fallbackTime = "") {
+      if (!dateValue) return "-";
+
+      try {
+        const d = new Date(dateValue);
+        if (!isNaN(d.getTime())) {
+          const weekday = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'][d.getDay()];
+          const month = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][d.getMonth()];
+          const day = String(d.getDate()).padStart(2, '0');
+          const hour = String(d.getHours()).padStart(2, '0');
+          const minute = String(d.getMinutes()).padStart(2, '0');
+          return `${weekday} ${month} ${day} ${hour}:${minute}`;
+        }
+      } catch (err) {}
+
+      const text = `${dateValue} ${fallbackTime || ""}`.trim();
+
+      const match = text.match(/(?:\w{3,}\s)?(?:([A-Za-z]{3})\s)?(\d{1,2})[^\d]+(\d{4}).*?(\d{1,2}):(\d{2})/);
+      if (match) {
+        const monthMap = {
+          Jan: 'ม.ค.', Feb: 'ก.พ.', Mar: 'มี.ค.', Apr: 'เม.ย.', May: 'พ.ค.', Jun: 'มิ.ย.',
+          Jul: 'ก.ค.', Aug: 'ส.ค.', Sep: 'ก.ย.', Oct: 'ต.ค.', Nov: 'พ.ย.', Dec: 'ธ.ค.'
+        };
+        const month = monthMap[(match[1] || '').slice(0, 3)] || '';
+        const day = String(match[2]).padStart(2, '0');
+        const hour = String(match[4]).padStart(2, '0');
+        const minute = String(match[5]).padStart(2, '0');
+        return `${month} ${day} ${hour}:${minute}`.trim();
+      }
+
+      return text || "-";
+    }
+
+
     function renderTable(rows) {
       const tbody = document.getElementById("docTableBody");
       if (!tbody) return;
@@ -626,7 +660,8 @@
 
       tbody.innerHTML = rows.map(r => {
         const name = r.full_name || r.display_name || "-";
-        const dateTime = `${r.submit_date || "-"} ${r.submit_time || ""}`.trim();
+        const submitDateText = formatThaiShortDate(r.submit_date, r.submit_time);
+        const createdAtText = formatThaiShortDate(r.created_at);
 
         const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
           ? r.review_status
@@ -639,8 +674,8 @@
             <td>${r.department_name || "-"}</td>
             <td>${r.fund_source || "-"}</td>
             <td>
-              <div>${dateTime}</div>
-              <span class="small">สร้าง: ${r.created_at || "-"}</span>
+              <div>${submitDateText}</div>
+              <span class="small">สร้าง: ${createdAtText}</span>
             </td>
             <td>${formatNumber(r.amount_moph || 0)}</td>
             <td>${formatNumber(r.amount_mof || 0)}</td>
