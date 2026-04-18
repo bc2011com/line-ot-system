@@ -97,7 +97,10 @@
       btn.textContent = isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล';
     }
 
+    const DEBUG_MODE = false;
     function debugLog(text) {
+      if (!DEBUG_MODE) return;
+      
       const box = document.getElementById('debug');
       box.style.display = 'block';
       box.textContent += (box.textContent ? '\n' : '') + text;
