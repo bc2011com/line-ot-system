@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OT Dashboard</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Sarabun", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, #f7faff 100%);
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .left-actions,
+    .right-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
+    }
+
+    .btn:hover {
+      opacity: 0.96;
+      transform: translateY(-1px);
+    }
+
+    .btn-home {
+      background: #ffffff;
+      color: #1d4ed8;
+    }
+
+    .btn-refresh {
+      background: #0ea5e9;
+      color: #ffffff;
+    }
+
+    .btn-logout {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8 58%, #3b82f6 100%);
+      color: #fff;
+      border-radius: 28px;
+      padding: 28px 24px;
+      box-shadow: 0 18px 30px rgba(37, 99, 235, 0.22);
+      margin-bottom: 20px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .hero h1 {
+      position: relative;
+      margin: 0 0 10px 0;
+      font-size: 30px;
+      line-height: 1.35;
+      font-weight: 800;
+      z-index: 1;
+    }
+
+    .hero p {
+      position: relative;
+      margin: 0;
+      font-size: 16px;
+      opacity: 0.97;
+      z-index: 1;
+    }
+
+    .status-chip {
+      position: relative;
+      display: inline-block;
+      margin-top: 14px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      border: 1px solid #edf2f7;
+    }
+
+    .card-title {
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 34px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      border: 1px solid #edf2f7;
+      min-height: 320px;
+    }
+
+    .panel h3,
+    .table-panel h3 {
+      margin: 0 0 18px 0;
+      font-size: 22px;
+      color: #0f172a;
+    }
+
+    .table-panel {
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      border: 1px solid #edf2f7;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .toolbar select,
+    .toolbar button {
+      height: 50px;
+      border-radius: 14px;
+      font-size: 16px;
+      padding: 0 16px;
+    }
+
+    .toolbar select {
+      min-width: 220px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #111827;
+    }
+
+    .toolbar button {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 160px;
+    }
+
+    .toolbar button.secondary {
+      background: #0ea5e9;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+      font-size: 15px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #374151;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #111827;
+    }
+
+    .small {
+      display: block;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .rejected {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .neutral {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 24px;
+    }
+
+    .debug {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      color: #475467;
+      font-size: .9rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .card-value {
+        font-size: 30px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar select,
+      .toolbar button {
+        width: 100%;
+      }
+
+      .top-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .left-actions,
+      .right-actions {
+        width: 100%;
+      }
+
+      .left-actions .btn,
+      .right-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-actions">
+      <div class="left-actions">
+        <button type="button" class="btn btn-home" onclick="goHome()">← กลับสู่เมนูหลัก</button>
+        <button type="button" class="btn btn-refresh" onclick="refreshDashboard()">⟳ โหลดใหม่</button>
+      </div>
+      <div class="right-actions">
+        <button type="button" class="btn btn-logout" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1>Dashboard ระบบเบิกค่าตอบแทน OT</h1>
+      <p id="userInfo">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
+      <div class="status-chip" id="liffStatus">กำลังเชื่อมต่อ LINE...</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">เอกสารทั้งหมด</div>
+        <div class="card-value" id="totalCount">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">รอตรวจสอบ</div>
+        <div class="card-value" id="pendingCount">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">ผ่าน</div>
+        <div class="card-value" id="approvedCount">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">ไม่ผ่าน</div>
+        <div class="card-value" id="rejectedCount">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">ยอด MOPH รวม</div>
+        <div class="card-value" id="mophTotal">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">ยอด MOF รวม</div>
+        <div class="card-value" id="mofTotal">0</div>
+      </div>
+    </div>
+
+    <div class="grid-two">
+      <div class="panel">
+        <h3>สรุปสถานะเอกสาร</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="panel">
+        <h3>เปรียบเทียบจำนวนเอกสาร</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <h3>รายการเอกสาร</h3>
+
+      <div class="toolbar">
+        <select id="statusFilter">
+          <option value="">ทุกสถานะ</option>
+          <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+          <option value="รอ">รอ</option>
+          <option value="ผ่าน">ผ่าน</option>
+          <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+        </select>
+        <button type="button" onclick="loadList()">กรองข้อมูล</button>
+        <button type="button" class="secondary" onclick="resetFilter()">ล้างตัวกรอง</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>เลขรายงาน</th>
+              <th>ชื่อผู้ยื่น</th>
+              <th>แผนก</th>
+              <th>แหล่งเงิน</th>
+              <th>วันที่ส่ง</th>
+              <th>MOPH</th>
+              <th>MOF</th>
+              <th>สถานะ</th>
+              <th>ผลตรวจ</th>
+              <th>หมายเหตุรีวิว</th>
+            </tr>
+          </thead>
+          <tbody id="docTableBody">
+            <tr>
+              <td colspan="10" class="empty">กำลังโหลดข้อมูล...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="debugBox" class="debug"></div>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const DEBUG_MODE = true;
+
+    let pieChartInstance = null;
+    let barChartInstance = null;
+    let liffReady = false;
+
+    function debugLog(text) {
+      if (!DEBUG_MODE) return;
+      const box = document.getElementById("debugBox");
+      box.style.display = "block";
+      box.textContent += (box.textContent ? "\n" : "") + text;
+      console.log(text);
+    }
+
+    function getUserSession() {
+      return {
+        role: localStorage.getItem("role") || "staff",
+        line_user_id: localStorage.getItem("line_user_id") || "",
+        department_id: localStorage.getItem("department_id") || "",
+        department_name: localStorage.getItem("department_name") || "",
+        full_name: localStorage.getItem("full_name") || "",
+        display_name: localStorage.getItem("display_name") || ""
+      };
+    }
+
+    function buildUrl(action, extraParams = {}) {
+      const user = getUserSession();
+      const url = new URL(GAS_URL);
+
+      url.searchParams.set("action", action);
+      url.searchParams.set("role", user.role || "");
+      url.searchParams.set("line_user_id", user.line_user_id || "");
+      url.searchParams.set("department_id", user.department_id || "");
+      url.searchParams.set("department_name", user.department_name || "");
+
+      Object.keys(extraParams).forEach((key) => {
+        const value = extraParams[key];
+        if (value !== undefined && value !== null && value !== "") {
+          url.searchParams.set(key, value);
+        }
+      });
+
+      return url.toString();
+    }
+
+    async function fetchJson(url) {
+      debugLog("GET => " + url);
+
+      const res = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      const text = await res.text();
+      debugLog("RESPONSE => " + text);
+
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        throw new Error("API ไม่ได้ส่ง JSON กลับมา");
+      }
+    }
+
+    function formatNumber(num) {
+      return Number(num || 0).toLocaleString("th-TH");
+    }
+
+    function setLiffStatus(text) {
+      const el = document.getElementById("liffStatus");
+      if (el) el.textContent = text;
+    }
+
+    function renderUserInfo() {
+      const user = getUserSession();
+      const displayName = user.full_name || user.display_name || "-";
+      const role = user.role || "-";
+      const dept = user.department_name || user.department_id || "-";
+
+      const el = document.getElementById("userInfo");
+      if (el) {
+        el.textContent = `ผู้ใช้งาน: ${displayName} | role: ${role} | แผนก: ${dept}`;
+      }
+    }
+
+    function renderCards(summary) {
+      document.getElementById("totalCount").textContent = formatNumber(summary.total || 0);
+      document.getElementById("pendingCount").textContent = formatNumber(summary.pending || 0);
+      document.getElementById("approvedCount").textContent = formatNumber(summary.approved || 0);
+      document.getElementById("rejectedCount").textContent = formatNumber(summary.rejected || 0);
+      document.getElementById("mophTotal").textContent = formatNumber(summary.totalAmountMoph || 0);
+      document.getElementById("mofTotal").textContent = formatNumber(summary.totalAmountMof || 0);
+    }
+
+    function renderCharts(chartData) {
+      const pieCanvas = document.getElementById("pieChart");
+      const barCanvas = document.getElementById("barChart");
+
+      if (!pieCanvas || !barCanvas) return;
+
+      const labels = (chartData || []).map(item => item.label);
+      const values = (chartData || []).map(item => item.value);
+
+      if (pieChartInstance) {
+        pieChartInstance.destroy();
+        pieChartInstance = null;
+      }
+
+      if (barChartInstance) {
+        barChartInstance.destroy();
+        barChartInstance = null;
+      }
+
+      pieChartInstance = new Chart(pieCanvas.getContext("2d"), {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      });
+
+      barChartInstance = new Chart(barCanvas.getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "จำนวนเอกสาร",
+            data: values
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function getStatusBadge(status) {
+      const s = String(status || "").trim();
+
+      if (s === "รอ" || s === "รอตรวจสอบ" || s.toLowerCase() === "pending") {
+        return `<span class="badge pending">${s || "รอตรวจสอบ"}</span>`;
+      }
+      if (s === "ผ่าน") {
+        return `<span class="badge approved">${s}</span>`;
+      }
+      if (s === "ไม่ผ่าน") {
+        return `<span class="badge rejected">${s}</span>`;
+      }
+      return `<span class="badge neutral">${s || "-"}</span>`;
+    }
+
+    function getReviewBadge(status) {
+      const s = String(status || "").trim();
+
+      if (!s) return `<span class="badge neutral">-</span>`;
+      if (s === "ผ่าน") return `<span class="badge approved">${s}</span>`;
+      if (s === "ไม่ผ่าน") return `<span class="badge rejected">${s}</span>`;
+      if (s === "รอ" || s === "รอตรวจสอบ") return `<span class="badge pending">${s}</span>`;
+      return `<span class="badge neutral">${s}</span>`;
+    }
+
+    function formatThaiShortDate(dateValue, fallbackTime = "") {
+      if (!dateValue) return "-";
+
+      try {
+        const d = new Date(dateValue);
+        if (!isNaN(d.getTime())) {
+          const weekday = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'][d.getDay()];
+          const month = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][d.getMonth()];
+          const day = String(d.getDate()).padStart(2, '0');
+          const hour = String(d.getHours()).padStart(2, '0');
+          const minute = String(d.getMinutes()).padStart(2, '0');
+          return `${weekday} ${month} ${day} ${hour}:${minute}`;
+        }
+      } catch (err) {}
+
+      const text = `${dateValue} ${fallbackTime || ""}`.trim();
+      return text || "-";
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("docTableBody");
+      if (!tbody) return;
+
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="empty">ยังไม่มีรายการสำหรับแสดง</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const name = r.full_name || r.display_name || "-";
+        const submitDateText = formatThaiShortDate(r.submit_date, r.submit_time);
+        const createdAtText = formatThaiShortDate(r.created_at);
+
+        const effectiveReviewStatus = (r.review_status && String(r.review_status).trim())
+          ? r.review_status
+          : r.status;
+
+        return `
+          <tr>
+            <td>${r.report_id || "-"}</td>
+            <td>${name}</td>
+            <td>${r.department_name || r.department_id || "-"}</td>
+            <td>${r.fund_source || "-"}</td>
+            <td>
+              <div>${submitDateText}</div>
+              <span class="small">สร้าง: ${createdAtText}</span>
+            </td>
+            <td>${formatNumber(r.amount_moph || 0)}</td>
+            <td>${formatNumber(r.amount_mof || 0)}</td>
+            <td>${getStatusBadge(r.status)}</td>
+            <td>${getReviewBadge(effectiveReviewStatus)}</td>
+            <td>${r.review_note || "-"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+
+    async function loadDashboard() {
+  try {
+    const url = buildUrl("getDashboardData");
+    const result = await fetchJson(url);
+
+    console.log("Dashboard result:", result);
+
+    if (!result.success) {
+      throw new Error(result.message || "โหลด Dashboard ไม่สำเร็จ");
+    }
+
+    const data = result.data || {};
+
+    // การ์ดตัวเลข
+    document.getElementById("totalCount").textContent = Number(data.total || 0).toLocaleString("th-TH");
+    document.getElementById("pendingCount").textContent = Number(data.pending || 0).toLocaleString("th-TH");
+    document.getElementById("approvedCount").textContent = Number(data.approved || 0).toLocaleString("th-TH");
+    document.getElementById("rejectedCount").textContent = Number(data.rejected || 0).toLocaleString("th-TH");
+    document.getElementById("mophTotal").textContent = Number(data.totalAmountMoph || 0).toLocaleString("th-TH");
+    document.getElementById("mofTotal").textContent = Number(data.totalAmountMof || 0).toLocaleString("th-TH");
+
+    // กราฟ
+    renderCharts([
+      { label: "รอตรวจสอบ", value: data.pending || 0 },
+      { label: "ผ่าน", value: data.approved || 0 },
+      { label: "ไม่ผ่าน", value: data.rejected || 0 }
+    ]);
+
+    // ตาราง
+    renderTable(data.recent || []);
+
+  } catch (err) {
+    console.error("loadDashboard error:", err);
+    const box = document.getElementById("debugBox");
+    if (box) {
+      box.style.display = "block";
+      box.textContent += "\nloadDashboard error => " + (err.message || err);
+    }
+    alert("โหลด Dashboard ไม่สำเร็จ");
+  }
+}
+
+    async function loadList() {
+      try {
+        // ตอนนี้ backend ยังไม่มี getDashboardList
+        // ใช้ข้อมูลชุดเดียวกับ dashboard ไปก่อน เพื่อไม่ให้ error
+        await loadDashboard();
+      } catch (err) {
+        console.error("โหลดรายการไม่สำเร็จ:", err);
+        debugLog("loadList error => " + (err.message || err));
+        alert("โหลดรายการไม่สำเร็จ");
+      }
+    }
+
+    function resetFilter() {
+      const select = document.getElementById("statusFilter");
+      if (select) select.value = "";
+      loadDashboard();
+    }
+
+    async function initLiffSafely() {
+      try {
+        if (!window.liff) {
+          setLiffStatus("ไม่พบ LIFF SDK");
+          return;
+        }
+
+        await liff.init({ liffId: LIFF_ID });
+        liffReady = true;
+
+        if (liff.isLoggedIn && !liff.isLoggedIn()) {
+          setLiffStatus("ต้องเข้าสู่ระบบ LINE");
+          return;
+        }
+
+        if (liff.isInClient && liff.isInClient()) {
+          setLiffStatus("เชื่อมต่อ LINE แล้ว • พร้อมกลับ Rich Menu");
+        } else {
+          setLiffStatus("เปิดจาก Browser • จะกลับ index.html");
+        }
+      } catch (err) {
+        console.error("LIFF init error:", err);
+        debugLog("LIFF init error => " + (err.message || err));
+        setLiffStatus("เชื่อมต่อ LINE ไม่สำเร็จ");
+      }
+    }
+
+    async function goHome() {
+      try {
+        if (window.liff && liffReady && typeof liff.isInClient === "function" && liff.isInClient()) {
+          liff.closeWindow();
+          return;
+        }
+
+        window.location.href = "index.html";
+      } catch (e) {
+        console.error("goHome error:", e);
+        debugLog("goHome error => " + (e.message || e));
+        alert("ไม่สามารถกลับสู่เมนูหลักได้");
+      }
+    }
+
+    function refreshDashboard() {
+      loadDashboard();
+    }
+
+    function logout() {
+      if (!confirm("ต้องการออกจากระบบหรือไม่?")) return;
+
+      try {
+        localStorage.removeItem("role");
+        localStorage.removeItem("line_user_id");
+        localStorage.removeItem("department_id");
+        localStorage.removeItem("department_name");
+        localStorage.removeItem("full_name");
+        localStorage.removeItem("display_name");
+
+        if (window.liff && liffReady && typeof liff.logout === "function" && !liff.isInClient()) {
+          liff.logout();
+        }
+      } catch (err) {
+        console.error("logout error:", err);
+        debugLog("logout error => " + (err.message || err));
+      }
+
+      window.location.href = "index.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      renderUserInfo();
+      await initLiffSafely();
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>
