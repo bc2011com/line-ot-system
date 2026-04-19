@@ -257,19 +257,30 @@
       localStorage.setItem('status_active', String(user.status_active ?? true));
     }
 
-    function routeByRole(user) {
-      const role = String(user.role || '').trim().toLowerCase();
+function routeByRole(user) {
+  const role = String(user.role || '').trim().toLowerCase();
 
-      if (role === 'admin' || role === 'finance' || role === 'staff' || role === 'user') {
-        showStatus('ตรวจสอบสิทธิ์สำเร็จ กำลังเข้าสู่หน้าระบบ...', 'ok');
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 500);
-        return;
-      }
+  // 👑 admin / finance → ตรวจเอกสาร
+  if (role === 'admin' || role === 'finance') {
+    showStatus('เข้าสู่ระบบในโหมดผู้ตรวจสอบเอกสาร...', 'ok');
+    setTimeout(() => {
+      window.location.href = 'admin_review.html';
+    }, 500);
+    return;
+  }
 
-      showStatus('ไม่พบสิทธิ์ใช้งานที่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ', 'err');
-    }
+  // 👤 staff / user → ส่งเอกสาร
+  if (role === 'staff' || role === 'user') {
+    showStatus('เข้าสู่ระบบในโหมดส่งเอกสาร...', 'ok');
+    setTimeout(() => {
+      window.location.href = 'submit_docs.html';
+    }, 500);
+    return;
+  }
+
+  // ❌ กรณี role ไม่ถูกต้อง
+  showStatus('ไม่พบสิทธิ์ใช้งานที่ถูกต้อง กรุณาติดต่อผู้ดูแลระบบ', 'err');
+}
 
     async function initPage() {
       setLoading(true);
