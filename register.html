@@ -234,15 +234,16 @@
 
 async function loadDepartments() {
   try {
-    const res = await jsonpRequest({ action: 'getDepartments' });
+    const res = await fetch(API_BASE + "?action=getDepartments");
+    const data = await res.json();
 
-    console.log("Departments API:", res);
+    console.log("Departments:", data);
 
     const select = document.getElementById("department_id");
     select.innerHTML = '<option value="">-- เลือกหน่วยงาน --</option>';
 
-    if (res.success && res.departments) {
-      res.departments.forEach(dep => {
+    if (data.success && data.departments) {
+      data.departments.forEach(dep => {
         const opt = document.createElement("option");
         opt.value = dep.department_id;
         opt.textContent = dep.department_name;
