@@ -692,41 +692,49 @@
       }).join("");
     }
 
-    async function loadDashboard() {
-      try {
-        const url = buildUrl("getDashboardData");
-        const result = await fetchJson(url);
+<script>
+async function loadDashboard() {
+  try {
+    const url = buildUrl("getDashboardData");
+    const result = await fetchJson(url);
 
-        if (!result.success) {
-          throw new Error(result.message || "โหลด Dashboard ไม่สำเร็จ");
-        }
+    console.log("Dashboard result:", result);
 
-        const data = result.data || {};
-
-renderCards({
-  total: data.total || 0,
-  pending: data.pending || 0,
-  approved: data.approved || 0,
-  rejected: data.rejected || 0,
-
-  // 🔥 FIX ตรงนี้
-  totalAmountMoph: data.total || 0,
-  totalAmountMof: data.total || 0
-});
-
-        renderCharts([
-          { label: "รอตรวจสอบ", value: data.pending || 0 },
-          { label: "ผ่าน", value: data.approved || 0 },
-          { label: "ไม่ผ่าน", value: data.rejected || 0 }
-        ]);
-
-        renderTable(renderTable([]););
-      } catch (err) {
-        console.error("โหลด dashboard ไม่สำเร็จ:", err);
-        debugLog("loadDashboard error => " + (err.message || err));
-        alert("โหลด Dashboard ไม่สำเร็จ");
-      }
+    if (!result.success) {
+      throw new Error(result.message || "โหลด Dashboard ไม่สำเร็จ");
     }
+
+    const data = result.data || {};
+
+    // การ์ดตัวเลข
+    document.getElementById("totalCount").textContent = Number(data.total || 0).toLocaleString("th-TH");
+    document.getElementById("pendingCount").textContent = Number(data.pending || 0).toLocaleString("th-TH");
+    document.getElementById("approvedCount").textContent = Number(data.approved || 0).toLocaleString("th-TH");
+    document.getElementById("rejectedCount").textContent = Number(data.rejected || 0).toLocaleString("th-TH");
+    document.getElementById("mophTotal").textContent = Number(data.totalAmountMoph || 0).toLocaleString("th-TH");
+    document.getElementById("mofTotal").textContent = Number(data.totalAmountMof || 0).toLocaleString("th-TH");
+
+    // กราฟ
+    renderCharts([
+      { label: "รอตรวจสอบ", value: data.pending || 0 },
+      { label: "ผ่าน", value: data.approved || 0 },
+      { label: "ไม่ผ่าน", value: data.rejected || 0 }
+    ]);
+
+    // ตาราง
+    renderTable(data.recent || []);
+
+  } catch (err) {
+    console.error("loadDashboard error:", err);
+    const box = document.getElementById("debugBox");
+    if (box) {
+      box.style.display = "block";
+      box.textContent += "\nloadDashboard error => " + (err.message || err);
+    }
+    alert("โหลด Dashboard ไม่สำเร็จ");
+  }
+}
+</script>
 
     async function loadList() {
       try {
