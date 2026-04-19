@@ -438,15 +438,15 @@
       });
     }
 
-    function goDashboard() {
-      try {
+function goDashboard() {
+  try {
     if (window.liff && liff.isInClient()) {
       liff.closeWindow();
       return;
     }
   } catch (e) {}
-    window.location.href = "index.html";
-    }
+  window.location.href = "index.html";
+}
     
     function setDefaultDateTime(){
       const now = new Date();
