@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
@@ -7,251 +7,313 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 20px 16px 32px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "Sarabun", sans-serif; background: #f4f7fb; color: #14213d; }
-    .wrap { max-width: 720px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 22px; padding: 22px 18px; box-shadow: 0 12px 30px rgba(0,0,0,.08); border: 1px solid #e8edf3; }
-    h1 { margin: 0 0 8px; font-size: 2rem; line-height: 1.2; }
-    .sub { margin: 0 0 18px; color: #667085; font-size: 1rem; line-height: 1.6; }
-    .field { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 8px; font-size: 1.25rem; font-weight: 700; color: #101828; }
-    input, select { width: 100%; padding: 16px 18px; border: 1.5px solid #d0d5dd; border-radius: 18px; font-size: 1.2rem; background: #fff; color: #101828; outline: none; }
-    input[readonly] { background: #f9fafb; color: #344054; }
-    select { appearance: auto; -webkit-appearance: menulist; cursor: pointer; }
-    input:focus, select:focus { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(22,163,74,.12); }
-    .hint { margin-top: 6px; font-size: .95rem; color: #667085; }
-    .btn { width: 100%; padding: 18px 20px; border: none; border-radius: 18px; background: #16a34a; color: #fff; font-size: 1.5rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(22,163,74,.28); }
-    .btn:disabled { opacity: .7; cursor: wait; }
-    .msg { margin-top: 16px; padding: 14px 16px; border-radius: 16px; font-size: 1.05rem; line-height: 1.6; }
-    .msg.ok { background: #ecfdf3; color: #027a48; border: 1px solid #abefc6; }
-    .msg.err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
-    .debug { margin-top: 16px; padding: 12px 14px; border-radius: 14px; background: #f8fafc; border: 1px dashed #cbd5e1; color: #475467; font-size: .9rem; white-space: pre-wrap; word-break: break-word; display: none; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+    .container {
+      max-width: 720px;
+      margin: 24px auto;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #111827;
+    }
+    input, select {
+      width: 100%;
+      padding: 16px 18px;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      font-size: 1rem;
+      outline: none;
+      background: #fff;
+    }
+    input:focus, select:focus {
+      border-color: #16a34a;
+    }
+    input[readonly] {
+      background: #f9fafb;
+      color: #374151;
+    }
+    .hint {
+      font-size: .92rem;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+    .status-box {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: .95rem;
+      display: none;
+    }
+    .status-info {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .status-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+    .status-error {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #16a34a;
+      color: white;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    .small-note {
+      margin-top: 18px;
+      color: #6b7280;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
+  <div class="container">
+    <div class="card" id="mainCard">
       <h1>สมัครสมาชิก / เข้าสู่ระบบ</h1>
-      <p class="sub">กรอกข้อมูลผู้ใช้งานสำหรับระบบเบิกค่าตอบแทน OT ผ่าน LINE</p>
-
-      <div class="field">
-        <label for="line_user_id">LINE User ID</label>
-        <input id="line_user_id" type="text" readonly />
+      <div class="subtitle">
+        กรอกข้อมูลผู้ใช้งานสำหรับระบบเบิกค่าตอบแทน OT ผ่าน LINE
       </div>
 
-      <div class="field">
-        <label for="display_name">ชื่อจาก LINE</label>
-        <input id="display_name" type="text" readonly />
+      <div id="statusBox" class="status-box status-info"></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="line_user_id">LINE User ID</label>
+          <input type="text" id="line_user_id" name="line_user_id" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="display_name">ชื่อจาก LINE</label>
+          <input type="text" id="display_name" name="display_name" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="full_name">ชื่อ-สกุล</label>
+          <input type="text" id="full_name" name="full_name" placeholder="กรอกชื่อ-สกุล" required />
+        </div>
+
+        <div class="form-group">
+          <label for="department_id">หน่วยงาน / แผนก</label>
+          <select id="department_id" name="department_id" required>
+            <option value="">-- เลือกหน่วยงาน --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">เบอร์โทรศัพท์</label>
+          <input type="tel" id="phone" name="phone" placeholder="เช่น 08xxxxxxxx" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">อีเมล</label>
+          <input type="email" id="email" name="email" placeholder="example@email.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="role_display">ตำแหน่งสิทธิ์ใช้งาน</label>
+          <input type="text" id="role_display" value="ระบบกำหนดอัตโนมัติ" readonly />
+          <div class="hint">ผู้ใช้งานไม่สามารถเลือกสิทธิ์เองได้ ระบบจะกำหนดจากฐานข้อมูล</div>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-primary" id="submitBtn">บันทึกข้อมูล</button>
+          <button type="button" class="btn-secondary" id="loginBtn">เข้าสู่ระบบ</button>
+        </div>
+      </form>
+
+      <div class="small-note">
+        หากสมัครแล้ว ระบบจะตรวจสอบข้อมูลผู้ใช้จาก LINE และกำหนดสิทธิ์การใช้งานให้อัตโนมัติ
       </div>
-
-      <div class="field">
-        <label for="full_name">ชื่อ-สกุล</label>
-        <input id="full_name" type="text" placeholder="กรอกชื่อ-สกุล" />
-      </div>
-
-      <div class="field">
-        <label for="role">ตำแหน่งสิทธิ์ใช้งาน</label>
-        <select id="role" name="role">
-          <option value="staff">เจ้าหน้าที่</option>
-          <option value="admin">admin</option>
-        </select>
-        
-      </div>
-
-      <div class="field">
-        <label for="department_id">หน่วยงาน / แผนก</label>
-        <select id="department_id" name="department_id">
-          <option value="">-- เลือกแผนก --</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="phone">เบอร์โทร</label>
-        <input id="phone" type="text" inputmode="numeric" placeholder="เช่น 0812345678" />
-      </div>
-
-      <div class="field">
-        <label for="email">อีเมล</label>
-        <input id="email" type="email" placeholder="example@hospital.go.th" />
-      </div>
-
-      <button id="saveBtn" class="btn" type="button" onclick="saveUser()">บันทึกข้อมูล</button>
-
-      <div id="msg"></div>
-      <div id="debug" class="debug"></div>
     </div>
   </div>
 
   <script>
-    const LIFF_ID = '2009688300-9LChW0zg';
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
-   
-    function showMessage(text, ok = true) {
-      const el = document.getElementById('msg');
-      el.className = 'msg ' + (ok ? 'ok' : 'err');
-      el.textContent = text;
+    // ====== ตั้งค่า Apps Script URL ของคุณ ======
+    const API_URL = "วาง_WEB_APP_URL_ของ_APPS_SCRIPT_ที่นี่";
+    const LIFF_ID = "2009688300-9LChW0zg";
+
+    const statusBox = document.getElementById("statusBox");
+    const mainCard = document.getElementById("mainCard");
+    const registerForm = document.getElementById("registerForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const loginBtn = document.getElementById("loginBtn");
+
+    function showStatus(message, type = "info") {
+      statusBox.style.display = "block";
+      statusBox.className = `status-box status-${type}`;
+      statusBox.textContent = message;
     }
 
     function setLoading(isLoading) {
-      const btn = document.getElementById('saveBtn');
-      btn.disabled = isLoading;
-      btn.textContent = isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล';
-    }
-
-    const DEBUG_MODE = false;
-    function debugLog(text) {
-      if (!DEBUG_MODE) return;
-      
-      const box = document.getElementById('debug');
-      box.style.display = 'block';
-      box.textContent += (box.textContent ? '\n' : '') + text;
-      console.log(text);
-    }
-
-    function unwrapResponse(res) {
-      return res && Object.prototype.hasOwnProperty.call(res, 'data') ? res.data : res;
-    }
-
-    function jsonpRequest(params) {
-      return new Promise((resolve, reject) => {
-        const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-        params.callback = callbackName;
-        const qs = new URLSearchParams(params).toString();
-        const script = document.createElement('script');
-
-        const cleanup = () => {
-          try { delete window[callbackName]; } catch (e) {}
-          if (script.parentNode) script.parentNode.removeChild(script);
-        };
-
-        const timer = setTimeout(() => {
-          cleanup();
-          reject(new Error('เรียก API ไม่สำเร็จ'));
-        }, 10000);
-
-        window[callbackName] = function(data) {
-          clearTimeout(timer);
-          cleanup();
-          resolve(data);
-        };
-
-        script.onerror = function() {
-          clearTimeout(timer);
-          cleanup();
-          reject(new Error('โหลด API ไม่สำเร็จ'));
-        };
-
-        script.src = API_BASE + '?' + qs;
-        document.body.appendChild(script);
-      });
-    }
-
-    async function loadDepartments() {
-      const sel = document.getElementById('department_id');
-      sel.innerHTML = '<option value="">-- เลือกแผนก --</option>';
-
-      const res = await jsonpRequest({ action: 'getDepartments' });
-      debugLog('getDepartments => ' + JSON.stringify(res));
-      const rows = Array.isArray(unwrapResponse(res)) ? unwrapResponse(res) : [];
-
-      rows.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = String(d.department_id || '').trim();
-        opt.textContent = d.department_name || d.department_id || '-';
-        sel.appendChild(opt);
-      });
-    }
-
-    async function loadExistingUser(userId) {
-      const res = await jsonpRequest({
-        action: 'getUserByLineId',
-        line_user_id: userId
-      });
-
-      debugLog('getUserByLineId => ' + JSON.stringify(res));
-      const user = unwrapResponse(res);
-
-      if (user && user.line_user_id) {
-        document.getElementById('full_name').value = user.full_name || '';
-        document.getElementById('phone').value = user.phone || '';
-        document.getElementById('email').value = user.email || '';
-
-        const roleValue = String(user.role || '').trim().toLowerCase();
-        document.getElementById('role').value = roleValue === 'admin' ? 'admin' : 'staff';
-
-        const deptValue = String(user.department_id || '').trim();
-        document.getElementById('department_id').value = deptValue || '';
+      if (isLoading) {
+        mainCard.classList.add("loading");
+        submitBtn.disabled = true;
+        loginBtn.disabled = true;
       } else {
-        document.getElementById('role').value = 'staff';
-        document.getElementById('department_id').value = '';
+        mainCard.classList.remove("loading");
+        submitBtn.disabled = false;
+        loginBtn.disabled = false;
       }
     }
 
-    async function saveUser() {
+    async function initLiff() {
       try {
-        setLoading(true);
-
-        const payload = {
-          action: 'saveUser',
-          line_user_id: document.getElementById('line_user_id').value.trim(),
-          display_name: document.getElementById('display_name').value.trim(),
-          full_name: document.getElementById('full_name').value.trim(),
-          role: document.getElementById('role').value,
-          department_id: document.getElementById('department_id').value,
-          phone: document.getElementById('phone').value.trim(),
-          email: document.getElementById('email').value.trim(),
-          status_active: 'TRUE'
-        };
-
-        if (!payload.line_user_id) throw new Error('ไม่พบ LINE User ID');
-        if (!payload.full_name) throw new Error('กรุณากรอกชื่อ-สกุล');
-        if (!payload.department_id) throw new Error('กรุณาเลือกหน่วยงาน / แผนก');
-
-        const result = await jsonpRequest(payload);
-        debugLog('saveUser => ' + JSON.stringify(result));
-
-        if (result.ok === false) {
-          throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
-        }
-
-        showMessage(result.message || 'บันทึกข้อมูลสำเร็จ', true);
-        await loadExistingUser(payload.line_user_id);
-
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 700);
-
-      } catch (err) {
-        console.error(err);
-        showMessage(err.message || 'เกิดข้อผิดพลาด', false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function initPage() {
-      try {
+        showStatus("กำลังเชื่อมต่อ LINE ...", "info");
         await liff.init({ liffId: LIFF_ID });
 
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: location.href });
+          liff.login();
           return;
         }
 
         const profile = await liff.getProfile();
-        debugLog('LINE profile => ' + JSON.stringify(profile));
-
-        document.getElementById('line_user_id').value = profile.userId || '';
-        document.getElementById('display_name').value = profile.displayName || '';
+        document.getElementById("line_user_id").value = profile.userId || "";
+        document.getElementById("display_name").value = profile.displayName || "";
 
         await loadDepartments();
-        await loadExistingUser(profile.userId);
-      } catch (err) {
-        console.error(err);
-        showMessage('เริ่มต้นระบบไม่สำเร็จ: ' + (err.message || err), false);
+        showStatus("เชื่อมต่อ LINE สำเร็จ", "success");
+      } catch (error) {
+        console.error("LIFF init error:", error);
+        showStatus("เชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองใหม่", "error");
       }
     }
 
-    window.addEventListener('load', initPage);
+    async function loadDepartments() {
+      try {
+        const res = await fetch(`${API_URL}?action=getDepartments`);
+        const data = await res.json();
+
+        const select = document.getElementById("department_id");
+        select.innerHTML = '<option value="">-- เลือกหน่วยงาน --</option>';
+
+        if (data.success && Array.isArray(data.departments)) {
+          data.departments.forEach(dep => {
+            const opt = document.createElement("option");
+            opt.value = dep.department_id;
+            opt.textContent = `${dep.department_id} - ${dep.department_name}`;
+            select.appendChild(opt);
+          });
+        }
+      } catch (error) {
+        console.error("loadDepartments error:", error);
+      }
+    }
+
+    registerForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const payload = {
+        line_user_id: document.getElementById("line_user_id").value.trim(),
+        display_name: document.getElementById("display_name").value.trim(),
+        full_name: document.getElementById("full_name").value.trim(),
+        department_id: document.getElementById("department_id").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim()
+      };
+
+      if (!payload.line_user_id || !payload.display_name || !payload.full_name || !payload.department_id) {
+        showStatus("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน", "error");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        showStatus("กำลังบันทึกข้อมูล ...", "info");
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "registerUser",
+            data: payload
+          })
+        });
+
+        const result = await res.json();
+        console.log("register result:", result);
+
+        if (result.success) {
+          localStorage.setItem("line_user_id", payload.line_user_id);
+          localStorage.setItem("display_name", payload.display_name);
+          localStorage.setItem("full_name", payload.full_name);
+          localStorage.setItem("role", result.role || "staff");
+          localStorage.setItem("department_id", payload.department_id);
+
+          showStatus(result.message || "บันทึกข้อมูลสำเร็จ", "success");
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1200);
+        } else {
+          showStatus(result.message || "บันทึกข้อมูลไม่สำเร็จ", "error");
+        }
+      } catch (error) {
+        console.error("register error:", error);
+        showStatus("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ", "error");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    loginBtn.addEventListener("click", function() {
+      window.location.href = "index.html";
+    });
+
+    window.addEventListener("load", initLiff);
   </script>
 </body>
 </html>
