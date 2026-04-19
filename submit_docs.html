@@ -439,8 +439,14 @@
     }
 
     function goDashboard() {
-    window.location.href = "https://liff.line.me/2009688300-9LChW0zg";
-       }
+      try {
+    if (window.liff && liff.isInClient()) {
+      liff.closeWindow();
+      return;
+    }
+  } catch (e) {}
+    history.back();
+    }
     
     function setDefaultDateTime(){
       const now = new Date();
