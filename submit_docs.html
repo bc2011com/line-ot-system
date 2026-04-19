@@ -438,8 +438,16 @@
       });
     }
 
-    function goDashboard(){
-      location.href = 'dashboard.html';
+    function goDashboard() {
+      try {
+          if (window.liff && typeof liff.isInClient === "function" && liff.isInClient()) {
+          liff.closeWindow();
+      return;
+      }
+     } catch (e) {}
+
+  window.location.href = "index.html";
+}
     }
 
     function setDefaultDateTime(){
