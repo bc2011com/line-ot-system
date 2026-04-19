@@ -703,14 +703,16 @@
 
         const data = result.data || {};
 
-        renderCards({
-          total: data.total || 0,
-          pending: data.pending || 0,
-          approved: data.approved || 0,
-          rejected: data.rejected || 0,
-          totalAmountMoph: data.totalAmountMoph || 0,
-          totalAmountMof: data.totalAmountMof || 0
-        });
+renderCards({
+  total: data.total || 0,
+  pending: data.pending || 0,
+  approved: data.approved || 0,
+  rejected: data.rejected || 0,
+
+  // 🔥 FIX ตรงนี้
+  totalAmountMoph: data.total || 0,
+  totalAmountMof: data.total || 0
+});
 
         renderCharts([
           { label: "รอตรวจสอบ", value: data.pending || 0 },
@@ -718,7 +720,7 @@
           { label: "ไม่ผ่าน", value: data.rejected || 0 }
         ]);
 
-        renderTable(data.recent || []);
+        renderTable(renderTable([]););
       } catch (err) {
         console.error("โหลด dashboard ไม่สำเร็จ:", err);
         debugLog("loadDashboard error => " + (err.message || err));
