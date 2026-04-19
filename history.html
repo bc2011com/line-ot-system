@@ -6,37 +6,298 @@
   <title>ตรวจสอบสถานะเอกสาร</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body{margin:0;font-family:'Sarabun',system-ui,sans-serif;background:#f4f7fb;color:#111827;}
-    .topbar{background:linear-gradient(135deg,#0a8f2f,#16a34a);color:#fff;padding:24px 18px 30px;border-bottom-left-radius:26px;border-bottom-right-radius:26px;box-shadow:0 8px 24px rgba(10,143,47,.22);}
-    .title{margin:0 0 6px;font-size:30px;font-weight:800;}
-    .subtitle{margin:0;font-size:16px;opacity:.95;}
-    .wrap{max-width:960px;margin:0 auto;padding:18px;}
-    .card{background:#fff;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin-bottom:16px;}
-    h2{margin:0 0 12px;font-size:24px;}
-    .subhead{margin:0 0 10px;color:#4b5563;line-height:1.6;}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    label{display:block;font-size:16px;font-weight:700;margin:8px 0 6px;}
-    input{width:100%;box-sizing:border-box;padding:14px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;background:#eef2f7;}
-    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-    .btn{border:none;border-radius:12px;padding:14px 18px;font-size:16px;font-weight:800;cursor:pointer;}
-    .btn-secondary{background:#e5e7eb;color:#111827;}
-    .msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef7ee;color:#166534;font-size:16px;line-height:1.6;white-space:pre-wrap;display:none;}
-    .msg.error{background:#fef2f2;color:#991b1b;}
-    .debug{display:none; margin-top:14px;padding:12px 14px;border-radius:12px;background:#eef2ff;color:#374151;font-size:12px;white-space:pre-wrap;word-break:break-word;}
-    .report-list{display:grid;gap:12px;}
-    .report-item{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#f8fafc;}
-    .report-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
-    .report-id{font-weight:800;font-size:18px;color:#0f172a;}
-    .status{display:inline-block;padding:6px 10px;border-radius:999px;font-size:14px;font-weight:800;}
-    .status.pending{background:#fef3c7;color:#92400e;}
-    .status.approved{background:#dcfce7;color:#166534;}
-    .status.rejected{background:#fee2e2;color:#991b1b;}
+    :root{
+      --bg:#eef3f9;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --green-soft:#dcfce7;
+      --amber-soft:#fef3c7;
+      --red-soft:#fee2e2;
+      --shadow:0 12px 32px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Sarabun',system-ui,sans-serif;
+      background:linear-gradient(180deg,#f3f7fb 0%, #edf3f9 100%);
+      color:var(--text);
+    }
+    .topbar{
+      background:linear-gradient(135deg,#0a8f2f,#2563eb);
+      color:#fff;
+      padding:26px 18px 34px;
+      border-bottom-left-radius:28px;
+      border-bottom-right-radius:28px;
+      box-shadow:0 12px 30px rgba(37,99,235,.18);
+    }
+    .title{
+      margin:0 0 6px;
+      font-size:30px;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .subtitle{
+      margin:0;
+      font-size:16px;
+      opacity:.96;
+    }
+    .wrap{
+      max-width:980px;
+      margin:-8px auto 0;
+      padding:18px;
+    }
+    .hero{
+      background:linear-gradient(135deg,#1d4ed8 0%, #2563eb 45%, #3b82f6 100%);
+      color:#fff;
+      border-radius:26px;
+      padding:22px 20px;
+      box-shadow:0 18px 40px rgba(37,99,235,.18);
+      margin-bottom:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-40px;
+      top:-40px;
+      width:180px;
+      height:180px;
+      background:rgba(255,255,255,.10);
+      border-radius:50%;
+    }
+    .hero h2{
+      margin:0 0 8px;
+      font-size:20px;
+      font-weight:800;
+      position:relative;
+      z-index:1;
+    }
+    .hero p{
+      margin:0;
+      color:rgba(255,255,255,.92);
+      line-height:1.6;
+      position:relative;
+      z-index:1;
+    }
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin:16px 0;
+    }
+    .summary-card{
+      background:var(--card);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(226,232,240,.9);
+    }
+    .summary-label{
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .summary-value{
+      font-size:32px;
+      line-height:1;
+      font-weight:800;
+      color:#0f172a;
+    }
+    .card{
+      background:var(--card);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+      border:1px solid rgba(226,232,240,.8);
+    }
+    h2{
+      margin:0 0 12px;
+      font-size:24px;
+      line-height:1.2;
+    }
+    .subhead{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    label{
+      display:block;
+      font-size:15px;
+      font-weight:700;
+      margin:0 0 6px;
+      color:#334155;
+    }
+    input{
+      width:100%;
+      box-sizing:border-box;
+      padding:14px 15px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      font-size:16px;
+      background:#f8fbff;
+      color:#0f172a;
+    }
+    .btn-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:13px 18px;
+      font-size:16px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn-primary{
+      background:#2563eb;
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#e2e8f0;
+      color:#0f172a;
+    }
+    .msg{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#eef7ee;
+      color:#166534;
+      font-size:15px;
+      line-height:1.6;
+      white-space:pre-wrap;
+      display:none;
+    }
+    .msg.error{
+      background:#fef2f2;
+      color:#991b1b;
+    }
+    .debug{
+      display:none;
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#eef2ff;
+      color:#374151;
+      font-size:12px;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .report-list{
+      display:grid;
+      gap:14px;
+    }
+    .report-item{
+      border:1px solid #dbe4ef;
+      border-radius:22px;
+      padding:16px;
+      background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+      box-shadow:0 8px 20px rgba(15,23,42,.05);
+    }
+    .report-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .report-id{
+      font-weight:800;
+      font-size:18px;
+      color:#0f172a;
+      line-height:1.3;
+    }
+    .status{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:800;
+      min-width:98px;
+    }
+    .status.pending{background:var(--amber-soft);color:#92400e;}
+    .status.approved{background:var(--green-soft);color:#166534;}
+    .status.rejected{background:var(--red-soft);color:#991b1b;}
     .status.default{background:#e5e7eb;color:#374151;}
-    .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px;font-size:15px;}
-    .docs{margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1;font-size:15px;line-height:1.6;}
-    .empty{text-align:center;padding:26px 14px;color:#6b7280;font-size:16px;border:1px dashed #cbd5e1;border-radius:16px;background:#fff;}
-    .review-note{margin-top:10px;background:#fff;padding:12px 14px;border-radius:12px;border-left:5px solid #f59e0b;}
-    @media (max-width:760px){.grid,.meta{grid-template-columns:1fr;}.title{font-size:24px;}}
+    .meta{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px 12px;
+      font-size:15px;
+      margin-top:10px;
+    }
+    .meta-card{
+      background:#fff;
+      border:1px solid #e7edf5;
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    .meta-label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:4px;
+      font-weight:700;
+    }
+    .meta-value{
+      font-size:16px;
+      color:#0f172a;
+      font-weight:700;
+      line-height:1.5;
+    }
+    .section-block{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px dashed #cbd5e1;
+    }
+    .docs{
+      font-size:15px;
+      line-height:1.7;
+      color:#1e293b;
+    }
+    .empty{
+      text-align:center;
+      padding:30px 16px;
+      color:#6b7280;
+      font-size:16px;
+      border:1px dashed #cbd5e1;
+      border-radius:18px;
+      background:#fff;
+    }
+    .review-note{
+      margin-top:12px;
+      background:#fffaf0;
+      padding:14px;
+      border-radius:16px;
+      border-left:5px solid #f59e0b;
+      line-height:1.7;
+      font-size:15px;
+    }
+    @media (max-width:760px){
+      .summary-grid,.grid,.meta{
+        grid-template-columns:1fr;
+      }
+      .title{
+        font-size:24px;
+      }
+      .summary-value{
+        font-size:28px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -46,6 +307,26 @@
   </div>
 
   <div class="wrap">
+    <div class="hero">
+      <h2>Dashboard สถานะเอกสารของฉัน</h2>
+      <p>ติดตามผลการส่งเอกสารย้อนหลัง ดูสถานะล่าสุด และตรวจสอบหมายเหตุจากเจ้าหน้าที่ได้ในหน้าเดียว</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">รายการทั้งหมด</div>
+        <div class="summary-value" id="sum_total">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">รอตรวจสอบ</div>
+        <div class="summary-value" id="sum_pending">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">ผ่านแล้ว</div>
+        <div class="summary-value" id="sum_approved">0</div>
+      </div>
+    </div>
+
     <div class="card">
       <h2>ข้อมูลผู้ใช้งาน</h2>
       <div class="grid">
@@ -56,6 +337,7 @@
       </div>
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="goDashboard()">กลับหน้าหลัก</button>
+        <button class="btn btn-primary" onclick="initPage()">โหลดข้อมูลใหม่</button>
       </div>
       <div id="msg" class="msg"></div>
       <div id="debug" class="debug" style="display:none;"></div>
@@ -70,30 +352,32 @@
 
   <script>
     const LIFF_ID = "2009688300-uxFCsSxM";
-    const API_BASE = 'https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec';
-
-const DEBUG_MODE = false;
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
+    const DEBUG_MODE = false;
 
     function log(msg){
       if(!DEBUG_MODE) return;
-      const el = document.getElementById('debug');
+      const el = document.getElementById("debug");
       if(el) el.innerText += msg + "\\n";
       console.log(msg);
     }
 
     function setMessage(msg, isError=false){
-      const el = document.getElementById('msg');
-      el.style.display = msg ? 'block' : 'none';
-      el.className = isError ? 'msg error' : 'msg';
-      el.innerText = msg || '';
+      const el = document.getElementById("msg");
+      el.style.display = msg ? "block" : "none";
+      el.className = isError ? "msg error" : "msg";
+      el.innerText = msg || "";
     }
 
     function jsonp(url){
       return new Promise((resolve,reject)=>{
-        const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
-        const script = document.createElement('script');
-        const src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
-        const timer = setTimeout(()=>{ cleanup(); reject(new Error('JSONP timeout')); },10000);
+        const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+        const script = document.createElement("script");
+        const src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error("JSONP timeout"));
+        },10000);
 
         function cleanup(){
           clearTimeout(timer);
@@ -101,45 +385,142 @@ const DEBUG_MODE = false;
           try{ delete window[cb]; }catch(e){}
         }
 
-        window[cb] = function(data){ cleanup(); resolve(data); };
-        script.onerror = function(){ cleanup(); reject(new Error('JSONP failed')); };
+        window[cb] = function(data){
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function(){
+          cleanup();
+          reject(new Error("JSONP failed"));
+        };
+
         script.src = src;
         document.body.appendChild(script);
       });
     }
 
     function goDashboard() {
-    try {
-    if (window.liff && liff.isInClient()) {
-      liff.closeWindow();
-      return;
-    }
-    } catch (e) {}
+      try {
+        if (window.liff && liff.isInClient()) {
+          liff.closeWindow();
+          return;
+        }
+      } catch (e) {}
       window.location.href = "index.html";
     }
 
     function statusClass(status){
-      const s = String(status || '').trim();
-      if(s === 'รอตรวจสอบ') return 'pending';
-      if(s === 'ผ่าน' || s === 'อนุมัติ' || s === 'อนุมัติแล้ว') return 'approved';
-      if(s === 'ไม่ผ่าน' || s === 'ตีกลับ') return 'rejected';
-      return 'default';
+      const s = String(status || "").trim();
+      if(s === "รอตรวจสอบ") return "pending";
+      if(s === "ผ่าน" || s === "อนุมัติ" || s === "อนุมัติแล้ว") return "approved";
+      if(s === "ไม่ผ่าน" || s === "ตีกลับ") return "rejected";
+      return "default";
+    }
+
+    function formatNumber(value){
+      const num = Number(value || 0);
+      return num.toLocaleString("th-TH");
+    }
+
+    function formatThaiDisplayDate(dateValue, timeValue=""){
+      const dateText = String(dateValue || "").trim();
+      const timeText = String(timeValue || "").trim();
+
+      const weekdays = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+      const months = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+
+      let d = null;
+
+      if (dateText) {
+        const raw = `${dateText}${timeText ? " " + timeText : ""}`.trim();
+        const parsed = new Date(raw);
+
+        if (!isNaN(parsed.getTime()) && parsed.getFullYear() > 1900) {
+          d = parsed;
+        } else {
+          const dateOnly = new Date(dateText);
+          if (!isNaN(dateOnly.getTime()) && dateOnly.getFullYear() > 1900) {
+            d = dateOnly;
+          }
+        }
+      }
+
+      if (d) {
+        const dayName = weekdays[d.getDay()];
+        const day = d.getDate();
+        const month = months[d.getMonth()];
+        const year = d.getFullYear() + 543;
+
+        let hour = 0;
+        let minute = 0;
+
+        if (timeText) {
+          const m = timeText.match(/(\\d{1,2}):(\\d{2})/);
+          if (m) {
+            hour = Number(m[1]);
+            minute = Number(m[2]);
+          } else if (!timeText.includes("1899")) {
+            hour = d.getHours();
+            minute = d.getMinutes();
+          }
+        } else {
+          hour = d.getHours();
+          minute = d.getMinutes();
+        }
+
+        return `${dayName} ${day} ${month} ${year} ${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+      }
+
+      if (timeText) {
+        const m = timeText.match(/(\\d{1,2}):(\\d{2})/);
+        if (m) return `${String(m[1]).padStart(2,"0")}:${m[2]}`;
+      }
+
+      return dateText || timeText || "-";
+    }
+
+    function formatThaiDateTimeSingle(value){
+      const text = String(value || "").trim();
+      if (!text) return "-";
+
+      const d = new Date(text);
+      if (isNaN(d.getTime()) || d.getFullYear() < 1900) return text;
+
+      const weekdays = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+      const months = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+
+      return `${weekdays[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    }
+
+    function renderSummary(items){
+      const total = items.length;
+      const pending = items.filter(i => String(i.review_status || i.status || "").trim() === "รอตรวจสอบ").length;
+      const approved = items.filter(i => {
+        const s = String(i.review_status || i.status || "").trim();
+        return s === "ผ่าน" || s === "อนุมัติ" || s === "อนุมัติแล้ว";
+      }).length;
+
+      document.getElementById("sum_total").textContent = formatNumber(total);
+      document.getElementById("sum_pending").textContent = formatNumber(pending);
+      document.getElementById("sum_approved").textContent = formatNumber(approved);
     }
 
     function docNames(report){
       const docs = [];
-      if(report.doc_schedule === 'Y') docs.push('ข้อ 1');
-      if(report.doc_claim === 'Y') docs.push('ข้อ 2');
-      if(report.doc_sign === 'Y') docs.push('ข้อ 3');
-      if(report.doc_summary === 'Y') docs.push('ข้อ 4');
-      if(report.doc_overtime_request === 'Y') docs.push('ข้อ 5');
-      if(report.doc_memo_claim === 'Y') docs.push('ข้อ 6');
-      if(report.doc_shift_change === 'Y') docs.push('ข้อ 7');
+      if(report.doc_schedule === "Y") docs.push("ข้อ 1");
+      if(report.doc_claim === "Y") docs.push("ข้อ 2");
+      if(report.doc_sign === "Y") docs.push("ข้อ 3");
+      if(report.doc_summary === "Y") docs.push("ข้อ 4");
+      if(report.doc_overtime_request === "Y") docs.push("ข้อ 5");
+      if(report.doc_memo_claim === "Y") docs.push("ข้อ 6");
+      if(report.doc_shift_change === "Y") docs.push("ข้อ 7");
       return docs;
     }
 
     function renderReports(items){
-      const box = document.getElementById('report_list');
+      const box = document.getElementById("report_list");
+      renderSummary(items || []);
 
       if(!items || !items.length){
         box.innerHTML = '<div class="empty">ยังไม่มีประวัติการส่งเอกสาร</div>';
@@ -147,43 +528,58 @@ const DEBUG_MODE = false;
       }
 
       box.innerHTML = items.map(item => {
-        const docs = docNames(item).join(', ') || '-';
-        const amount = item.fund_source === 'mof' ? (item.amount_mof || 0) : (item.amount_moph || 0);
+        const docs = docNames(item).join(", ") || "-";
+        const amount = item.fund_source === "mof" ? (item.amount_mof || 0) : (item.amount_moph || 0);
+        const submitDisplay = formatThaiDisplayDate(item.submit_date, item.submit_time);
+        const reviewedAtDisplay = formatThaiDateTimeSingle(item.reviewed_at);
+        const fundLabel = item.fund_source === "mof" ? "กระทรวงการคลัง" : "กระทรวงสาธารณสุข";
+
         const review = item.review_note ? `
           <div class="review-note">
-            <b>ผลการตรวจ:</b> ${item.review_status || item.status || '-'}<br>
-            <b>เหตุผล / คำแนะนำ:</b> ${item.review_note || '-'}<br>
-            <b>ตรวจโดย:</b> ${item.reviewed_by || '-'}<br>
-            <b>วันที่ตรวจ:</b> ${item.reviewed_at || '-'}
+            <b>ผลการตรวจ:</b> ${item.review_status || item.status || "-"}<br>
+            <b>เหตุผล / คำแนะนำ:</b> ${item.review_note || "-"}<br>
+            <b>ตรวจโดย:</b> ${item.reviewed_by || "-"}<br>
+            <b>วันที่ตรวจ:</b> ${reviewedAtDisplay}
           </div>
-        ` : '';
+        ` : "";
 
         return `
           <div class="report-item">
             <div class="report-head">
-              <div class="report-id">${item.report_id || '-'}</div>
-              <div class="status ${statusClass(item.review_status || item.status)}">${item.review_status || item.status || '-'}</div>
+              <div class="report-id">${item.report_id || "-"}</div>
+              <div class="status ${statusClass(item.review_status || item.status)}">${item.review_status || item.status || "-"}</div>
             </div>
 
             <div class="meta">
-              <div><b>วันที่ส่ง:</b> ${item.submit_date || '-'}</div>
-              <div><b>เวลา:</b> ${item.submit_time || '-'}</div>
-              <div><b>แหล่งเงิน:</b> ${item.fund_source === 'mof' ? 'กระทรวงการคลัง' : 'กระทรวงสาธารณสุข'}</div>
-              <div><b>จำนวนเงิน:</b> ${amount || 0}</div>
-              <div><b>หน่วยงาน:</b> ${item.department_name || '-'}</div>
-              <div><b>เลขรายการ:</b> ${item.report_id || '-'}</div>
+              <div class="meta-card">
+                <div class="meta-label">วันที่และเวลาที่ส่ง</div>
+                <div class="meta-value">${submitDisplay}</div>
+              </div>
+              <div class="meta-card">
+                <div class="meta-label">แหล่งเงิน</div>
+                <div class="meta-value">${fundLabel}</div>
+              </div>
+              <div class="meta-card">
+                <div class="meta-label">จำนวนเงิน</div>
+                <div class="meta-value">${formatNumber(amount)} บาท</div>
+              </div>
+              <div class="meta-card">
+                <div class="meta-label">หน่วยงาน</div>
+                <div class="meta-value">${item.department_name || "-"}</div>
+              </div>
             </div>
 
-            <div class="docs"><b>เอกสารที่ส่ง:</b> ${docs}</div>
-            <div class="docs"><b>หมายเหตุผู้ส่ง:</b> ${item.note || '-'}</div>
+            <div class="section-block docs"><b>เอกสารที่ส่ง:</b> ${docs}</div>
+            <div class="section-block docs"><b>หมายเหตุผู้ส่ง:</b> ${item.note || "-"}</div>
             ${review}
-          </div>`;
-      }).join('');
+          </div>
+        `;
+      }).join("");
     }
 
     async function initPage(){
       try{
-        setMessage('กำลังเชื่อมต่อ LINE...');
+        setMessage("กำลังเชื่อมต่อ LINE...");
         await liff.init({ liffId: LIFF_ID });
 
         if(!liff.isLoggedIn()){
@@ -192,29 +588,29 @@ const DEBUG_MODE = false;
         }
 
         const profile = await liff.getProfile();
-        const lineUserId = profile.userId || '';
-        document.getElementById('line_user_id').value = lineUserId;
+        const lineUserId = profile.userId || "";
+        document.getElementById("line_user_id").value = lineUserId;
 
-        const userRes = await jsonp(API_BASE + '?action=getUserByLineId&line_user_id=' + encodeURIComponent(lineUserId));
+        const userRes = await jsonp(API_BASE + "?action=getUserByLineId&line_user_id=" + encodeURIComponent(lineUserId));
         if(!(userRes && (userRes.data || userRes.line_user_id))){
-          setMessage('ยังไม่พบข้อมูลผู้ใช้ กรุณาสมัครสมาชิกก่อน', true);
-          setTimeout(() => { location.href = 'register.html'; }, 1200);
+          setMessage("ยังไม่พบข้อมูลผู้ใช้ กรุณาสมัครสมาชิกก่อน", true);
+          setTimeout(() => { location.href = "register.html"; }, 1200);
           return;
         }
 
         const user = userRes && userRes.data ? userRes.data : userRes;
-        document.getElementById('display_name').value = user.display_name || '';
-        document.getElementById('full_name').value = user.full_name || '';
-        document.getElementById('department_name').value = user.department_name || user.department_id || '-';
+        document.getElementById("display_name").value = user.display_name || "";
+        document.getElementById("full_name").value = user.full_name || "";
+        document.getElementById("department_name").value = user.department_name || user.department_id || "-";
 
-        const reportRes = await jsonp(API_BASE + '?action=getReportsByUser&line_user_id=' + encodeURIComponent(lineUserId));
-        log('getReportsByUser response: ' + JSON.stringify(reportRes));
+        const reportRes = await jsonp(API_BASE + "?action=getReportsByUser&line_user_id=" + encodeURIComponent(lineUserId));
+        log("getReportsByUser response: " + JSON.stringify(reportRes));
 
         renderReports(reportRes && reportRes.data ? reportRes.data : (Array.isArray(reportRes) ? reportRes : []));
-        setMessage('');
+        setMessage("");
       }catch(err){
-        log('ERROR initPage: ' + (err.message || err));
-        setMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล\\n' + (err.message || err), true);
+        log("ERROR initPage: " + (err.message || err));
+        setMessage("เกิดข้อผิดพลาดในการโหลดข้อมูล\\n" + (err.message || err), true);
       }
     }
 
