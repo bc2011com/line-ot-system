@@ -234,7 +234,7 @@
 
 async function loadDepartments() {
   try {
-    const res = await fetch(API_BASE + "?action=getDepartments");
+    const res = await fetch(API_URL + "?action=getDepartments");
     const data = await res.json();
 
     console.log("Departments:", data);
