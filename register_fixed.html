@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สมัครสมาชิก / เข้าสู่ระบบ</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+    .container {
+      max-width: 720px;
+      margin: 24px auto;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #111827;
+    }
+    input, select {
+      width: 100%;
+      padding: 16px 18px;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      font-size: 1rem;
+      outline: none;
+      background: #fff;
+    }
+    input:focus, select:focus {
+      border-color: #16a34a;
+    }
+    input[readonly] {
+      background: #f9fafb;
+      color: #374151;
+    }
+    .hint {
+      font-size: .92rem;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+    .status-box {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: .95rem;
+      display: none;
+    }
+    .status-info {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .status-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+    .status-error {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #16a34a;
+      color: white;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    .small-note {
+      margin-top: 18px;
+      color: #6b7280;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+    .debug {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: .9rem;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      color: #475467;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="mainCard">
+      <h1>สมัครสมาชิก / เข้าสู่ระบบ</h1>
+      <div class="subtitle">
+        ยินดีต้อนรับผู้ใช้งานใหม่ กรุณากรอกข้อมูลสำหรับเริ่มใช้งานระบบเบิกค่าตอบแทน OT ผ่าน LINE
+      </div>
+
+      <div id="statusBox" class="status-box status-info"></div>
+      
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="line_user_id">LINE User ID</label>
+          <input type="text" id="line_user_id" name="line_user_id" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="display_name">ชื่อจาก LINE</label>
+          <input type="text" id="display_name" name="display_name" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="full_name">ชื่อ-สกุล</label>
+          <input type="text" id="full_name" name="full_name" placeholder="กรอกชื่อ-สกุล" required />
+        </div>
+
+        <div class="form-group">
+          <label for="department_id">หน่วยงาน / แผนก</label>
+          <select id="department_id" name="department_id" required>
+            <option value="">-- เลือกหน่วยงาน --</option>
+          </select>
+          <div class="hint" id="deptHint">กำลังโหลดรายชื่อหน่วยงาน...</div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">เบอร์โทรศัพท์</label>
+          <input type="tel" id="phone" name="phone" placeholder="เช่น 08xxxxxxxx" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">อีเมล</label>
+          <input type="email" id="email" name="email" placeholder="example@email.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="role_display">ตำแหน่งสิทธิ์ใช้งาน</label>
+          <input type="text" id="role_display" value="ระบบกำหนดอัตโนมัติ" readonly />
+          <div class="hint">ผู้ใช้งานไม่สามารถเลือกสิทธิ์เองได้ ระบบจะกำหนดจากฐานข้อมูล</div>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-primary" id="submitBtn">บันทึกข้อมูล</button>
+          <button type="button" class="btn-secondary" id="loginBtn">เข้าสู่ระบบ</button>
+        </div>
+      </form>
+
+      <div class="small-note">
+        หากสมัครแล้ว ระบบจะตรวจสอบข้อมูลผู้ใช้จาก LINE และกำหนดสิทธิ์การใช้งานให้อัตโนมัติ
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwQrnldZrUUNn5Yfpj2xj53p_Ux5T-15Nk8a5lICGlZOkWMcy5rNmavqJSXovwru__0/exec";
+    const LIFF_ID = "2009688300-9LChW0zg";
+    const DEBUG_MODE = false;
+
+    const statusBox = document.getElementById("statusBox");
+    const debugBox = document.getElementById("debugBox");
+    const deptHint = document.getElementById("deptHint");
+    const mainCard = document.getElementById("mainCard");
+    const registerForm = document.getElementById("registerForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const loginBtn = document.getElementById("loginBtn");
+
+    function showStatus(message, type = "info") {
+      statusBox.style.display = "block";
+      statusBox.className = `status-box status-${type}`;
+      statusBox.textContent = message;
+    }
+
+    function debugLog(message) {
+      if (!DEBUG_MODE) return;
+      debugBox.style.display = "block";
+      debugBox.textContent += (debugBox.textContent ? "\n" : "") + message;
+      console.log(message);
+    }
+
+    function routeByRole(role) {
+      const normalizedRole = String(role || "").trim().toLowerCase();
+      if (normalizedRole === "admin" || normalizedRole === "finance") {
+        window.location.href = "admin_review.html";
+        return;
+      }
+      window.location.href = "submit_docs.html";
+    }
+
+    function saveSession(payload, role, departmentName) {
+      localStorage.setItem("line_user_id", payload.line_user_id || "");
+      localStorage.setItem("display_name", payload.display_name || "");
+      localStorage.setItem("full_name", payload.full_name || "");
+      localStorage.setItem("role", role || "staff");
+      localStorage.setItem("department_id", payload.department_id || "");
+      localStorage.setItem("department_name", departmentName || "");
+    }
+
+    function getSelectedDepartmentName() {
+      const select = document.getElementById("department_id");
+      if (!select) return "";
+      const option = select.options[select.selectedIndex];
+      return option ? option.textContent.trim() : "";
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        mainCard.classList.add("loading");
+        submitBtn.disabled = true;
+        loginBtn.disabled = true;
+      } else {
+        mainCard.classList.remove("loading");
+        submitBtn.disabled = false;
+        loginBtn.disabled = false;
+      }
+    }
+
+    function jsonpRequest(params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        params.callback = callbackName;
+        const qs = new URLSearchParams(params).toString();
+        const script = document.createElement("script");
+
+        const cleanup = () => {
+          try { delete window[callbackName]; } catch (e) {}
+          if (script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("เรียก API ไม่สำเร็จ"));
+        }, 12000);
+
+        window[callbackName] = function(data) {
+          clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function() {
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error("โหลด API ไม่สำเร็จ"));
+        };
+
+        script.src = API_URL + "?" + qs;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadDepartments() {
+      const select = document.getElementById("department_id");
+      select.innerHTML = '<option value="">-- เลือกหน่วยงาน --</option>';
+      deptHint.textContent = "กำลังโหลดรายชื่อหน่วยงาน...";
+
+      try {
+        const data = await jsonpRequest({ action: "getDepartments" });
+        debugLog("getDepartments => " + JSON.stringify(data));
+
+        if (data.success && Array.isArray(data.departments)) {
+          data.departments.forEach(dep => {
+            const opt = document.createElement("option");
+            opt.value = dep.department_id;
+            opt.textContent = dep.department_name;
+            select.appendChild(opt);
+          });
+
+          deptHint.textContent = `โหลดหน่วยงานสำเร็จ ${data.departments.length} รายการ`;
+        } else {
+          deptHint.textContent = "โหลดหน่วยงานไม่สำเร็จ";
+          showStatus(data.message || "โหลดรายชื่อหน่วยงานไม่สำเร็จ", "error");
+        }
+      } catch (err) {
+        debugLog("loadDepartments error => " + err.message);
+        deptHint.textContent = "โหลดหน่วยงานไม่สำเร็จ";
+        showStatus("โหลดรายชื่อหน่วยงานไม่สำเร็จ", "error");
+      }
+    }
+
+    async function loadExistingUser(lineUserId) {
+      try {
+        const res = await jsonpRequest({
+          action: "getUserByLineId",
+          line_user_id: lineUserId
+        });
+        debugLog("getUserByLineId => " + JSON.stringify(res));
+
+        if (res.success && res.found && res.user) {
+          document.getElementById("full_name").value = res.user.full_name || "";
+          document.getElementById("phone").value = res.user.phone || "";
+          document.getElementById("email").value = res.user.email || "";
+          document.getElementById("role_display").value = res.user.role || "staff";
+          document.getElementById("department_id").value = (res.user.department_id || "").trim();
+        } else {
+          document.getElementById("role_display").value = "ระบบกำหนดอัตโนมัติ";
+        }
+      } catch (error) {
+        debugLog("loadExistingUser error => " + error.message);
+      }
+    }
+
+    async function initLiff() {
+      try {
+        showStatus("กำลังเชื่อมต่อ LINE ...", "info");
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login({ redirectUri: location.href });
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        debugLog("LINE profile => " + JSON.stringify(profile));
+
+        document.getElementById("line_user_id").value = profile.userId || "";
+        document.getElementById("display_name").value = profile.displayName || "";
+
+        await loadDepartments();
+        await loadExistingUser(profile.userId);
+
+        showStatus("กรุณาตรวจสอบข้อมูล แล้วกดบันทึกเพื่อเริ่มใช้งานระบบ", "success");
+      } catch (error) {
+        console.error("LIFF init error:", error);
+        debugLog("LIFF init error => " + (error.message || error));
+        showStatus("เชื่อมต่อ LINE ไม่สำเร็จ กรุณาลองใหม่", "error");
+      }
+    }
+
+    registerForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const payload = {
+        line_user_id: document.getElementById("line_user_id").value.trim(),
+        display_name: document.getElementById("display_name").value.trim(),
+        full_name: document.getElementById("full_name").value.trim(),
+        department_id: document.getElementById("department_id").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim()
+      };
+
+      if (!payload.line_user_id || !payload.display_name || !payload.full_name || !payload.department_id) {
+        showStatus("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน", "error");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        showStatus("กำลังบันทึกข้อมูล ...", "info");
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "registerUser",
+            data: payload
+          })
+        });
+
+        const result = await res.json();
+        debugLog("registerUser => " + JSON.stringify(result));
+
+        if (result.success) {
+          const role = result.role || "staff";
+          const departmentName = getSelectedDepartmentName();
+          saveSession(payload, role, departmentName);
+
+          showStatus((result.message || "บันทึกข้อมูลสำเร็จ") + " กำลังเข้าสู่ระบบ...", "success");
+
+          setTimeout(() => {
+            routeByRole(role);
+          }, 900);
+        } else {
+          showStatus(result.message || "บันทึกข้อมูลไม่สำเร็จ", "error");
+        }
+      } catch (error) {
+        console.error("register error:", error);
+        debugLog("registerUser error => " + (error.message || error));
+        showStatus("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ", "error");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    loginBtn.addEventListener("click", function() {
+      window.location.href = "index.html";
+    });
+
+    window.addEventListener("load", initLiff);
+  </script>
+</body>
+</html>
